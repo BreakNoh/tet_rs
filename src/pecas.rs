@@ -2,22 +2,22 @@ pub const T: Peca<3> = Peca {
     blocos: [[0, 1, 0], [1, 1, 1], [0; 3]],
 };
 pub const LE: Peca<3> = Peca {
-    blocos: [[1, 0, 0], [1, 1, 1], [0; 3]],
+    blocos: [[2, 0, 0], [2, 2, 2], [0; 3]],
 };
 pub const SE: Peca<3> = Peca {
-    blocos: [[1, 1, 0], [0, 1, 1], [0; 3]],
+    blocos: [[3, 3, 0], [0, 3, 3], [0; 3]],
 };
 pub const LD: Peca<3> = Peca {
-    blocos: [[0, 0, 1], [1, 1, 1], [0; 3]],
+    blocos: [[0, 0, 4], [4, 4, 4], [0; 3]],
 };
 pub const SD: Peca<3> = Peca {
-    blocos: [[0, 1, 1], [1, 1, 0], [0; 3]],
+    blocos: [[0, 5, 5], [5, 5, 0], [0; 3]],
 };
 pub const O: Peca<2> = Peca {
-    blocos: [[1; 2]; 2],
+    blocos: [[6; 2]; 2],
 };
 pub const I: Peca<5> = Peca {
-    blocos: [[0; 5], [0; 5], [1, 1, 1, 1, 0], [0; 5], [0; 5]],
+    blocos: [[0; 5], [0; 5], [7, 7, 7, 7, 0], [0; 5], [0; 5]],
 };
 
 pub const PECAS: [WrapperPeca; 7] = [
