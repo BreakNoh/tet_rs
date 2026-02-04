@@ -1,10 +1,7 @@
 use crate::grid::LARGURA_GRID;
 
 use super::{grid::Grid, pecas::WrapperPeca};
-use termion::{
-    color::{self, *},
-    style,
-};
+use termion::{color::*, style};
 
 const ESQUERA_BLOCO: char = '\u{1FB34}'; // 🬴 
 const DIREITA_BLOCO: char = '\u{1FB38}'; // 🬸 
@@ -54,6 +51,7 @@ pub fn renderizar(
         render.push(PAREDE_BORDA);
         render.push('\n');
     }
+
     render.push(CANTO_ESQUERDO_BORDA);
     render.push_str(&BASE_BORDA.to_string().repeat(LARGURA_GRID * 2));
     render.push(CANTO_DIREITO_BORDA);

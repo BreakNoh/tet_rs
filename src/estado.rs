@@ -38,12 +38,13 @@ impl Estado {
     pub fn trocar_peca(&mut self) {
         self.grid.posicionar_peca(self.peca_atual(), self.x, self.y);
 
-        self.peca_atual = (self.peca_atual + 1) % NUMERO_PECAS;
         self.angulo = 0;
         self.x = ORIGEM_X;
         self.y = ORIGEM_Y;
 
-        if self.peca_atual == 0 {
+        self.peca_atual += 1;
+        if self.peca_atual == NUMERO_PECAS {
+            self.peca_atual = 0;
             self.pecas.shuffle(&mut rand::rng());
         }
     }
@@ -56,6 +57,7 @@ impl Estado {
             self.y += 1;
         } else {
             self.trocar_peca();
+            self.grid.limpar_completas();
         }
     }
     pub fn render(&self) {

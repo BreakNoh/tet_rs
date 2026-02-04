@@ -81,4 +81,41 @@ impl Grid {
         }
         Colisao::Nada
     }
+
+    pub fn limpar_completas(&mut self) {
+        let saltos = self.checar_linhas();
+
+        if saltos.iter().any(|v| *v != 0) {
+            self.derrubar_linhas(saltos);
+        }
+    }
+
+    fn checar_linhas(&self) -> [usize; ALTURA_GRID] {
+        let mut movimento = [0; ALTURA_GRID];
+        let mut salto = 0;
+
+        for (i, linha) in self.posicoes.iter().enumerate().rev() {
+            if linha.iter().all(|v| *v != 0) {
+                salto += 1;
+            } else {
+                movimento[i] = salto;
+            }
+        }
+
+        movimento
+    }
+
+    fn derrubar_linhas(&mut self, movimento: [usize; ALTURA_GRID]) {
+        let mut novo_grid = [[0; LARGURA_GRID]; ALTURA_GRID];
+
+        for (i, salto) in movimento.iter().enumerate().rev() {
+            let destino = *salto + i;
+
+            if destino < ALTURA_GRID {
+                novo_grid[destino] = self.posicoes[i];
+            }
+        }
+
+        self.posicoes = novo_grid;
+    }
 }
