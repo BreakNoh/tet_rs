@@ -24,7 +24,13 @@ fn esta_dentro_y(y: isize) -> bool {
 }
 
 impl Grid {
-    pub fn posicionar_peca(&mut self, peca: WrapperPeca, x: isize, y: isize) {
+    pub fn posicionar_peca_forcado(
+        &mut self,
+        peca: WrapperPeca,
+        x: isize,
+        y: isize,
+        valor_forcado: Option<u8>,
+    ) {
         let n = peca.tamanho() as isize;
 
         for dy in 0..n {
@@ -40,10 +46,14 @@ impl Grid {
                 if bloco_peca != 0 {
                     let x = (x + dx) as usize;
                     let y = (y + dy) as usize;
-                    self.posicoes[y][x] = bloco_peca;
+                    self.posicoes[y][x] = valor_forcado.unwrap_or(bloco_peca);
                 }
             }
         }
+    }
+
+    pub fn posicionar_peca(&mut self, peca: WrapperPeca, x: isize, y: isize) {
+        self.posicionar_peca_forcado(peca, x, y, None);
     }
 
     pub fn checar_colisao(

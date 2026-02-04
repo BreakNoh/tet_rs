@@ -13,13 +13,14 @@ const CANTO_DIREITO_BORDA: char = '\u{255d}'; // ╝
 
 fn paleta(id: u8) -> String {
     match id {
-        3 => format!("{}{}", Bg(LightRed), Fg(Red)),   //SE
-        2 => format!("{}{}", Bg(LightBlue), Fg(Blue)), // LE
-        5 => format!("{}{}", Bg(LightGreen), Fg(Green)),
-        4 => format!("{}{}", Bg(LightRed), Fg(Yellow)), // LD
         1 => format!("{}{}", Bg(LightMagenta), Fg(Magenta)), // T
-        7 => format!("{}{}", Bg(LightCyan), Fg(Cyan)),  // I
+        2 => format!("{}{}", Bg(LightBlue), Fg(Blue)),       // LE
+        3 => format!("{}{}", Bg(LightRed), Fg(Red)),         //SE
+        4 => format!("{}{}", Bg(LightRed), Fg(Yellow)),      // LD
+        5 => format!("{}{}", Bg(LightGreen), Fg(Green)),
         6 => format!("{}{}", Bg(LightYellow), Fg(Yellow)), // O
+        7 => format!("{}{}", Bg(LightCyan), Fg(Cyan)),     // I
+        99 => format!("{}{}", Bg(White), Fg(LightBlack)),  // fantasma
         _ => String::from(""),
     }
 }
@@ -33,10 +34,11 @@ pub fn renderizar(
 ) -> String {
     let mut render = String::new();
 
-    if let Some(peca) = peca_segurada {
-        grid.posicionar_peca(peca, x, y);
-    }
     if let Some((peca, x, y)) = fantasma {
+        grid.posicionar_peca_forcado(peca, x, y, Some(99));
+    }
+
+    if let Some(peca) = peca_segurada {
         grid.posicionar_peca(peca, x, y);
     }
 
