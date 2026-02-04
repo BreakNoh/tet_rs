@@ -29,10 +29,14 @@ pub fn renderizar(
     peca_segurada: Option<WrapperPeca>,
     x: isize,
     y: isize,
+    fantasma: Option<(WrapperPeca, isize, isize)>,
 ) -> String {
     let mut render = String::new();
 
     if let Some(peca) = peca_segurada {
+        grid.posicionar_peca(peca, x, y);
+    }
+    if let Some((peca, x, y)) = fantasma {
         grid.posicionar_peca(peca, x, y);
     }
 
