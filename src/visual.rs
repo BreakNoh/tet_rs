@@ -15,12 +15,12 @@ fn paleta(id: u8) -> String {
     match id {
         1 => format!("{}{}", Bg(LightMagenta), Fg(Magenta)), // T
         2 => format!("{}{}", Bg(LightBlue), Fg(Blue)),       // LE
-        3 => format!("{}{}", Bg(LightRed), Fg(Red)),         //SE
+        3 => format!("{}{}", Bg(LightRed), Fg(Red)),         // SE
         4 => format!("{}{}", Bg(LightRed), Fg(Yellow)),      // LD
-        5 => format!("{}{}", Bg(LightGreen), Fg(Green)),
-        6 => format!("{}{}", Bg(LightYellow), Fg(Yellow)), // O
-        7 => format!("{}{}", Bg(LightCyan), Fg(Cyan)),     // I
-        99 => format!("{}{}", Bg(White), Fg(LightBlack)),  // fantasma
+        5 => format!("{}{}", Bg(LightGreen), Fg(Green)),     // SD
+        6 => format!("{}{}", Bg(LightYellow), Fg(Yellow)),   // O
+        7 => format!("{}{}", Bg(LightCyan), Fg(Cyan)),       // I
+        99 => format!("{}{}", Bg(White), Fg(LightBlack)),    // fantasma
         _ => String::from(""),
     }
 }
@@ -30,6 +30,7 @@ pub fn renderizar(
     peca_segurada: Option<WrapperPeca>,
     x: isize,
     y: isize,
+    offset_horizontal: u16,
     fantasma: Option<(WrapperPeca, isize, isize)>,
 ) -> String {
     let mut render = String::new();
@@ -43,6 +44,7 @@ pub fn renderizar(
     }
 
     for linha in grid.posicoes.iter() {
+        render.push_str(&" ".repeat(offset_horizontal as usize));
         render.push(PAREDE_BORDA);
         for bloco in linha.iter() {
             if *bloco != 0 {
@@ -55,9 +57,10 @@ pub fn renderizar(
             }
         }
         render.push(PAREDE_BORDA);
-        render.push('\n');
+        render.push_str("\r\n");
     }
 
+    render.push_str(&" ".repeat(offset_horizontal as usize));
     render.push(CANTO_ESQUERDO_BORDA);
     render.push_str(&BASE_BORDA.to_string().repeat(LARGURA_GRID * 2));
     render.push(CANTO_DIREITO_BORDA);

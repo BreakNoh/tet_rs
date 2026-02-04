@@ -68,15 +68,16 @@ impl Estado {
         }
     }
 
-    pub fn render(&self) {
+    pub fn render(&self, offset_horizontal: u16) -> String {
         let render = renderizar(
             self.grid,
             Some(self.peca_atual()),
             self.x,
             self.y,
+            offset_horizontal,
             Some(self.fantasma),
         );
-        println!("{render}");
+        render
     }
 
     fn atualizar_fantasma(&mut self) {
