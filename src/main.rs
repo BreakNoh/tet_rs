@@ -37,6 +37,10 @@ fn main() {
                     estado.derrubar_direto();
                     renderizar(&estado, &mut stdout);
                 }
+                Ok(ch) if ch == Key::Char('f') => {
+                    estado.guardar_peca();
+                    renderizar(&estado, &mut stdout);
+                }
                 Ok(ch) if ch == Key::Char('a') => estado.mover(-1),
                 Ok(ch) if ch == Key::Char('d') => estado.mover(1),
                 Ok(ch) if ch == Key::Char('s') => {

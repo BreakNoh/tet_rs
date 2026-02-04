@@ -18,9 +18,14 @@ pub struct Estado {
     y: isize,
 
     angulo: usize,
-    peca_atual: usize,
+    indice_peca: usize,
 
     fantasma: (WrapperPeca, isize, isize),
+
+    peca_atual: WrapperPeca,
+    peca_guardada: Option<WrapperPeca>,
+
+    trocou: bool,
 
     pecas: [WrapperPeca; 7],
     grid: Grid,
@@ -34,10 +39,13 @@ impl Estado {
             x: ORIGEM_X,
             y: ORIGEM_Y,
             angulo: 0,
-            peca_atual: 0,
+            indice_peca: 0,
+            peca_atual: pecas[0],
             pecas,
             grid: grid::Grid::default(),
             fantasma: (WrapperPeca::P3(pecas::T), 0, 0),
+            peca_guardada: None,
+            trocou: false,
         };
         estado.atualizar_fantasma();
         estado
@@ -51,21 +59,48 @@ impl Estado {
         self.trocar_peca_bruto(self.peca_atual(), self.x, self.y);
     }
 
-    fn trocar_peca_bruto(&mut self, peca: WrapperPeca, x: isize, y: isize) {
-        self.grid.posicionar_peca(peca, x, y);
-        self.grid.limpar_completas();
+    pub fn guardar_peca(&mut self) {
+        if self.trocou {
+            return;
+        }
 
         self.angulo = 0;
         self.x = ORIGEM_X;
         self.y = ORIGEM_Y;
+        self.trocou = true;
 
-        self.peca_atual += 1;
-        if self.peca_atual == NUMERO_PECAS {
-            self.peca_atual = 0;
+        if let Some(p) = self.peca_guardada {
+            let carry = self.peca_atual;
+            self.peca_atual = p;
+            self.peca_guardada = Some(carry);
+            self.atualizar_fantasma();
+        } else {
+            self.peca_guardada = Some(self.peca_atual);
+            self.alterar_peca();
+        }
+    }
+
+    fn alterar_peca(&mut self) {
+        self.angulo = 0;
+        self.x = ORIGEM_X;
+        self.y = ORIGEM_Y;
+
+        self.indice_peca += 1;
+        if self.indice_peca == NUMERO_PECAS {
+            self.indice_peca = 0;
             self.pecas.shuffle(&mut rand::rng());
         }
+        self.peca_atual = self.pecas[self.indice_peca];
         self.atualizar_fantasma();
     }
+
+    fn trocar_peca_bruto(&mut self, peca: WrapperPeca, x: isize, y: isize) {
+        self.grid.posicionar_peca(peca, x, y);
+        self.grid.limpar_completas();
+        self.alterar_peca();
+        self.trocou = false;
+    }
+
     pub fn tick(&mut self) {
         if self
             .grid
@@ -137,6 +172,6 @@ impl Estado {
     }
 
     fn peca_atual(&self) -> WrapperPeca {
-        self.pecas[self.peca_atual].rotacionar(ANGULOS[self.angulo])
+        self.peca_atual.rotacionar(ANGULOS[self.angulo])
     }
 }
