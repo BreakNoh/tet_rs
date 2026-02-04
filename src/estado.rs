@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 use crate::{
     grid::{self, Colisao, Grid},
     pecas::{self, ANGULOS, Peca, WrapperPeca},
-    visual::renderizar,
+    visual::{Desenhavel, Frame, renderizar},
 };
 
 const ORIGEM_X: isize = 4;
@@ -174,5 +174,16 @@ impl Estado {
 
     pub fn peca_atual(&self) -> WrapperPeca {
         self.peca_atual.rotacionar(ANGULOS[self.angulo])
+    }
+}
+
+impl Desenhavel for Estado {
+    fn frame(&self) -> crate::visual::Frame {
+        let mut frame = self.grid.frame();
+
+        frame.desenhar(self.fantasma.0, self.fantasma.1 * 2, self.fantasma.2, true);
+        frame.desenhar(self.peca_atual(), self.x * 2, self.y, true);
+
+        frame
     }
 }

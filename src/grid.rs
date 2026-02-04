@@ -1,4 +1,7 @@
-use crate::pecas::WrapperPeca;
+use crate::{
+    pecas::WrapperPeca,
+    visual::{Desenhavel, Frame, bloco},
+};
 
 pub const ALTURA_GRID: usize = 20;
 pub const LARGURA_GRID: usize = 10;
@@ -127,5 +130,27 @@ impl Grid {
         }
 
         self.posicoes = novo_grid;
+    }
+}
+
+impl Desenhavel for Grid {
+    fn celulas(&self) -> Vec<Vec<crate::visual::Celula>> {
+        let celulas: Vec<Vec<crate::visual::Celula>> = self
+            .posicoes
+            .iter()
+            .map(|lin| {
+                lin.iter()
+                    .map(|blo| if *blo != 0 { bloco(false) } else { bloco(true) })
+                    .flatten()
+                    .collect()
+            })
+            .collect();
+
+        print!("{}", celulas.len());
+
+        celulas
+    }
+    fn frame(&self) -> crate::visual::Frame {
+        Frame::de_celula(self.celulas())
     }
 }

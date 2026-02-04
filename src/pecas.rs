@@ -108,3 +108,33 @@ impl<const N: usize> Peca<N> {
         self.blocos[y][x]
     }
 }
+
+const ESQUERA_BLOCO: char = '\u{1FB34}'; // 🬴 
+const DIREITA_BLOCO: char = '\u{1FB38}'; // 🬸 
+
+impl Desenhavel for WrapperPeca {
+    fn celulas(&self) -> Vec<Vec<Celula>> {
+        match self {
+            WrapperPeca::P2(p) => p.celulas(),
+            WrapperPeca::P3(p) => p.celulas(),
+            WrapperPeca::P5(p) => p.celulas(),
+        }
+    }
+    fn frame(&self) -> crate::visual::Frame {
+        Frame::de_celula(self.celulas())
+    }
+}
+
+impl<const N: usize> Desenhavel for Peca<N> {
+    fn celulas(&self) -> Vec<Vec<Celula>> {
+        self.blocos
+            .iter()
+            .map(|lin| {
+                lin.iter()
+                    .map(|blo| if *blo != 0 { bloco(false) } else { bloco(true) })
+                    .flatten()
+                    .collect()
+            })
+            .collect()
+    }
+}

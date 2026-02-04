@@ -14,6 +14,7 @@ use termion::{
 use crate::{
     estado::Estado,
     grid::{ALTURA_GRID, LARGURA_GRID},
+    visual::{Frame, borda},
 };
 
 enum Comando {
@@ -24,11 +25,14 @@ enum Comando {
 }
 
 fn main() {
-    let mut estado = estado::Estado::new();
     let stdin = async_stdin();
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     let mut keys = stdin.keys();
 
+    let mut estado = Estado::new();
+    let mut renderizador = preparar_renderizador();
+
+    let mut stdout = io::stdout().into_raw_mode().unwrap();
     let mut delay_tick = 400;
     let delay_render = 50;
 
@@ -54,7 +58,11 @@ fn main() {
         }
         if ultimo_render.elapsed() >= Duration::from_millis(delay_render) {
             ultimo_render = Instant::now();
-            renderizar(&estado, &mut stdout);
+
+            renderizador.desenhar(estado, 1, 0, false);
+            renderizador.renderizar(&mut stdout, 1);
+
+            // renderizar(&estado, &mut stdout);
         } else {
             std::thread::sleep(Duration::from_millis(25));
         }
@@ -81,6 +89,14 @@ fn main() {
     )
     .unwrap();
     stdout.flush().unwrap();
+}
+
+fn preparar_renderizador() -> Frame {
+    let mut frame = Frame::new((LARGURA_GRID + 1) * 2, ALTURA_GRID + 1);
+
+    frame.desenhar_celulas(borda(), 0, 0, false);
+
+    frame
 }
 
 fn tratar_input(ch: Key, estado: &mut Estado) -> Comando {
