@@ -16,6 +16,13 @@ use crate::{
     grid::{ALTURA_GRID, LARGURA_GRID},
 };
 
+enum Comando {
+    Fechar,
+    Reiniciar,
+    Nada,
+    ResetarTick,
+}
+
 fn main() {
     let mut estado = estado::Estado::new();
     let stdin = async_stdin();
@@ -27,31 +34,16 @@ fn main() {
 
     let mut ultimo_tick = Instant::now();
     let mut ultimo_render = Instant::now();
+    let mut comando = Comando::Nada;
 
     write!(stdout, "{}{}", cursor::Hide, clear::All).unwrap();
+
     loop {
         let input = keys.next();
         match input {
             Some(k) => match k {
-                Ok(ch) if ch == Key::Char('w') => {
-                    estado.derrubar_direto();
-                    renderizar(&estado, &mut stdout);
-                }
-                Ok(ch) if ch == Key::Char('f') => {
-                    estado.guardar_peca();
-                    renderizar(&estado, &mut stdout);
-                }
-                Ok(ch) if ch == Key::Char('a') => estado.mover(-1),
-                Ok(ch) if ch == Key::Char('d') => estado.mover(1),
-                Ok(ch) if ch == Key::Char('s') => {
-                    estado.tick();
-                    renderizar(&estado, &mut stdout);
-                }
-                Ok(ch) if ch == Key::Char('e') => estado.girar(1),
-                Ok(ch) if ch == Key::Char('q') => estado.girar(-1),
-                Ok(ch) if ch == Key::Esc || ch == Key::Ctrl('c') => break,
-                Ok(ch) if ch == Key::Char('r') => estado = Estado::new(),
-                _ => (),
+                Ok(ch) => comando = tratar_input(ch, &mut estado),
+                Err(_) => (),
             },
             None => (),
         }
@@ -66,6 +58,19 @@ fn main() {
         } else {
             std::thread::sleep(Duration::from_millis(25));
         }
+
+        match comando {
+            Comando::Fechar => break,
+            Comando::Reiniciar => {
+                estado = Estado::new();
+                comando = Comando::Nada
+            }
+            Comando::Nada => (),
+            Comando::ResetarTick => {
+                ultimo_tick = Instant::now();
+                comando = Comando::Nada;
+            }
+        }
     }
     write!(
         stdout,
@@ -76,6 +81,30 @@ fn main() {
     )
     .unwrap();
     stdout.flush().unwrap();
+}
+
+fn tratar_input(ch: Key, estado: &mut Estado) -> Comando {
+    match ch {
+        Key::Char('w') => {
+            estado.derrubar_direto();
+        }
+        Key::Char('f') => {
+            estado.guardar_peca();
+        }
+        Key::Char('a') => estado.mover(-1),
+        Key::Char('d') => estado.mover(1),
+        Key::Char('s') => {
+            estado.cair();
+            return Comando::ResetarTick;
+        }
+        Key::Char('e') => estado.girar(1),
+        Key::Char('q') => estado.girar(-1),
+        Key::Esc | Key::Ctrl('c') => return Comando::Fechar,
+        Key::Char('r') => return Comando::Reiniciar,
+        _ => (),
+    };
+
+    Comando::Nada
 }
 
 fn renderizar(estado: &Estado, stdout: &mut termion::raw::RawTerminal<io::Stdout>) {

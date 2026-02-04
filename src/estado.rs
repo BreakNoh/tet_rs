@@ -13,22 +13,23 @@ const ORIGEM_Y: isize = 1;
 const NUMERO_PECAS: usize = 7;
 const NUMERO_ANGULOS: usize = 4;
 
+#[derive(Debug, Clone, Copy)]
 pub struct Estado {
-    x: isize,
-    y: isize,
+    pub x: isize,
+    pub y: isize,
 
     angulo: usize,
     indice_peca: usize,
 
-    fantasma: (WrapperPeca, isize, isize),
+    pub fantasma: (WrapperPeca, isize, isize),
 
-    peca_atual: WrapperPeca,
-    peca_guardada: Option<WrapperPeca>,
+    pub peca_atual: WrapperPeca,
+    pub peca_guardada: Option<WrapperPeca>,
 
     trocou: bool,
 
     pecas: [WrapperPeca; 7],
-    grid: Grid,
+    pub grid: Grid,
 }
 
 impl Estado {
@@ -102,26 +103,13 @@ impl Estado {
     }
 
     pub fn tick(&mut self) {
-        if self
-            .grid
-            .checar_colisao(self.peca_atual(), self.x, self.y + 1, false)
-            != Colisao::Base
-        {
-            self.y += 1;
-        } else {
+        if !self.cair() {
             self.trocar_peca();
         }
     }
 
     pub fn render(&self, offset_horizontal: u16) -> String {
-        let render = renderizar(
-            self.grid,
-            Some(self.peca_atual()),
-            self.x,
-            self.y,
-            offset_horizontal,
-            Some(self.fantasma),
-        );
+        let render = renderizar(*self, offset_horizontal);
         render
     }
 
@@ -139,6 +127,19 @@ impl Estado {
             } else {
                 dy += 1;
             }
+        }
+    }
+
+    pub fn cair(&mut self) -> bool {
+        if self
+            .grid
+            .checar_colisao(self.peca_atual(), self.x, self.y + 1, false)
+            != Colisao::Base
+        {
+            self.y += 1;
+            true
+        } else {
+            false
         }
     }
 
@@ -171,7 +172,7 @@ impl Estado {
         }
     }
 
-    fn peca_atual(&self) -> WrapperPeca {
+    pub fn peca_atual(&self) -> WrapperPeca {
         self.peca_atual.rotacionar(ANGULOS[self.angulo])
     }
 }
