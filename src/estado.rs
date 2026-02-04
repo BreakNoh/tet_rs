@@ -1,3 +1,5 @@
+use std::isize;
+
 use rand::seq::SliceRandom;
 
 use crate::{
@@ -41,8 +43,17 @@ impl Estado {
         estado
     }
 
-    pub fn trocar_peca(&mut self) {
-        self.grid.posicionar_peca(self.peca_atual(), self.x, self.y);
+    pub fn derrubar_direto(&mut self) {
+        self.trocar_peca_bruto(self.fantasma.0, self.fantasma.1, self.fantasma.2);
+    }
+
+    fn trocar_peca(&mut self) {
+        self.trocar_peca_bruto(self.peca_atual(), self.x, self.y);
+    }
+
+    fn trocar_peca_bruto(&mut self, peca: WrapperPeca, x: isize, y: isize) {
+        self.grid.posicionar_peca(peca, x, y);
+        self.grid.limpar_completas();
 
         self.angulo = 0;
         self.x = ORIGEM_X;
@@ -53,6 +64,7 @@ impl Estado {
             self.peca_atual = 0;
             self.pecas.shuffle(&mut rand::rng());
         }
+        self.atualizar_fantasma();
     }
     pub fn tick(&mut self) {
         if self
@@ -63,8 +75,6 @@ impl Estado {
             self.y += 1;
         } else {
             self.trocar_peca();
-            self.grid.limpar_completas();
-            self.atualizar_fantasma();
         }
     }
 
