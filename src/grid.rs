@@ -1,7 +1,7 @@
 use crate::pecas::WrapperPeca;
 
-const ALTURA_GRID: usize = 20;
-const LARGURA_GRID: usize = 10;
+pub const ALTURA_GRID: usize = 20;
+pub const LARGURA_GRID: usize = 10;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
 pub enum Colisao {
