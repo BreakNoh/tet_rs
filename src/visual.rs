@@ -319,10 +319,11 @@ impl Frame {
         }
     }
 
-    fn rasterizar(&self) -> String {
+    fn rasterizar(&self, offset_x: u16) -> String {
         let mut buffer = String::new();
 
         for linha in self.celulas.iter() {
+            buffer.push_str(&" ".repeat(offset_x as usize));
             for c in linha.iter() {
                 buffer.push_str(&c.bg.bg());
                 buffer.push_str(&c.fg.fg());
@@ -335,10 +336,12 @@ impl Frame {
         buffer
     }
 
-    pub fn renderizar(&self, stdout: &mut RawTerminal<Stdout>, offset_y: u16) {
-        let buffer = self.rasterizar();
-        let origem = cursor::Goto(1, offset_y);
+    pub fn renderizar(&self, stdout: &mut RawTerminal<Stdout>, offset_x: u16, offset_y: u16) {
+        let buffer = self.rasterizar(offset_x);
+
+        let origem = cursor::Goto(1, if offset_y == 0 { 1 } else { offset_y });
         let limpar_tela = clear::All;
+
         write!(stdout, "{limpar_tela}{origem}{buffer}").unwrap();
         stdout.flush().unwrap();
     }

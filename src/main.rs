@@ -7,6 +7,7 @@ mod visual;
 use std::{
     io::{self, Write},
     time::{Duration, Instant},
+    usize,
 };
 use termion::{
     async_stdin, clear, cursor, event::Key, input::TermRead, raw::IntoRawMode, terminal_size,
@@ -16,7 +17,7 @@ use crate::{
     estado::Estado,
     grid::{ALTURA_GRID, LARGURA_GRID},
     tema::Tema,
-    visual::{Celula, Cor, Frame, borda},
+    visual::{Celula, Cor, Frame, borda, caixa},
 };
 
 enum Comando {
@@ -43,7 +44,7 @@ fn main() {
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     let mut keys = stdin.keys();
 
-    let mut renderizador = preparar_renderizador(&tema);
+    let (mut renderizador, offset_h, offset_v) = preparar_renderizador(&tema);
 
     let mut delay_tick = 400;
     let delay_render = 50;
@@ -72,7 +73,24 @@ fn main() {
             ultimo_render = Instant::now();
 
             renderizador.desenhar(estado, TAMANHO_BOLSO as isize + 2, 0, false, &tema);
-            renderizador.renderizar(&mut stdout, 1);
+
+            renderizador.desenhar(
+                caixa(TAMANHO_BOLSO, TAMANHO_BOLSO / 2, &tema),
+                0,
+                1,
+                false,
+                &tema,
+            );
+
+            if let Some(peca) = estado.peca_guardada {
+                let (x, y) = match peca.id() {
+                    7 => (2, 2),
+                    6 => (4, 3),
+                    _ => (3, 3),
+                };
+                renderizador.desenhar(peca, x, y, true, &tema);
+            }
+            renderizador.renderizar(&mut stdout, offset_h, offset_v);
         } else {
             std::thread::sleep(Duration::from_millis(25));
         }
@@ -101,27 +119,17 @@ fn main() {
     stdout.flush().unwrap();
 }
 
-fn preparar_renderizador(tema: &Tema) -> Frame {
+fn preparar_renderizador(tema: &Tema) -> (Frame, u16, u16) {
     let (largura_grid, altura_grid) = ((LARGURA_GRID + 1) * 2, ALTURA_GRID + 1);
-    let fundo = Celula {
-        transparente: false,
-        ch: 'X',
-        bg: Cor::Magenta,
-        fg: Cor::Preto,
-    };
-    let teste = Celula {
-        transparente: false,
-        ch: 'O',
-        bg: Cor::Verde,
-        fg: Cor::Vermelho,
-    };
+    let (largura_term, altura_term) = terminal_size().unwrap();
+    let offset_h = (largura_term - largura_grid as u16) / 2;
+    let offset_v = (altura_term - altura_grid as u16) / 2;
 
     let mut frame = Frame::new(largura_grid + 1 + TAMANHO_BOLSO, altura_grid, None);
 
     frame.desenhar_celulas(borda(tema), TAMANHO_BOLSO as isize + 1, 0, false);
-    frame.desenhar_celula(teste, largura_grid + TAMANHO_BOLSO, altura_grid);
 
-    frame
+    (frame, offset_h, offset_v)
 }
 
 fn tratar_input(ch: Key, estado: &mut Estado) -> Comando {
