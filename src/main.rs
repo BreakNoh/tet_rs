@@ -27,12 +27,20 @@ enum Comando {
 }
 
 fn main() {
+    let tema = match Tema::carregar("./temas/padrao.toml") {
+        Ok(t) => t,
+        Err(m) => {
+            println!("{m}");
+            panic!()
+        }
+    };
+
+    let mut estado = Estado::new();
+
     let stdin = async_stdin();
-    let tema = Tema::default();
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     let mut keys = stdin.keys();
 
-    let mut estado = Estado::new();
     let mut renderizador = preparar_renderizador(&tema);
 
     let mut delay_tick = 400;

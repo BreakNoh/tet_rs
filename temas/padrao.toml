@@ -1,4 +1,6 @@
 [borda]
+padrao = "X"
+cor = ["Vazio", "Branco"]
 base = "═"
 parede = "║"
 canto_sup_esq = "╔"
@@ -7,11 +9,11 @@ canto_inf_esq = "╚"
 canto_inf_dir = "╝"
 
 [chars]
-bloco_padrao = "🬴🬸"
-fantasma = "░░"
+padrao = ["🬴", "🬸"]
+fantasma = ["░", "░"]
 
 [cores]
-cor_padrao = ["Preto", "Branco"]
+padrao = ["Preto", "Branco"]
 t = ["MagentaClaro", "Magenta"]
 i = ["CianoClaro", "Ciano"]
 o = ["AmareloClaro", "Amarelo"]

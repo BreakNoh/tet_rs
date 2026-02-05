@@ -1,4 +1,4 @@
-use crate::{pecas::WrapperPeca, visual::Cor};
+use crate::{pecas::WrapperPeca, tema, visual::Cor};
 use serde::Deserialize;
 use std::fs::read_to_string;
 
@@ -119,17 +119,19 @@ impl Tema {
         self.visual_id(peca.id())
     }
 
-    pub fn carregar(arquivo: String) -> Tema {
-        let texto_tema = read_to_string(arquivo);
+    pub fn carregar(arquivo: &str) -> Result<Tema, &str> {
+        let texto_tema = read_to_string(&arquivo);
 
         if texto_tema.is_err() {
-            return Tema::default();
+            return Err("Arquivo não encontrado");
         }
 
-        if let Ok(tema_parseado) = toml::from_str(&texto_tema.unwrap()) {
-            tema_parseado
+        let tema_parseado = toml::from_str(&texto_tema.unwrap());
+
+        if let Ok(tema) = tema_parseado {
+            Ok(tema)
         } else {
-            Tema::default()
+            Err("Tema mal formado")
         }
     }
 }
