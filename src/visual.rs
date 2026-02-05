@@ -1,22 +1,20 @@
 use std::io::{Stdout, Write};
 
-use crate::{
-    estado::Estado,
-    grid::{ALTURA_GRID, LARGURA_GRID},
-};
+use crate::grid::{ALTURA_GRID, LARGURA_GRID};
 
-use super::{grid::Grid, pecas::WrapperPeca};
-use termion::{
-    clear,
-    color::{self, *},
-    cursor,
-    raw::RawTerminal,
-    style,
-};
+use termion::{clear, color::*, cursor, raw::RawTerminal};
 
 const LIMPAR_COR: &str = "\x1b[0m";
+const ESPACO: char = ' ';
 const ESQUERA_BLOCO: char = '\u{1FB34}'; // 🬴 
 const DIREITA_BLOCO: char = '\u{1FB38}'; // 🬸 
+const QUARTO_BAIXO: char = '\u{2584}'; //▄
+const QUARTO_CIMA: char = '\u{2580}'; //▀
+const SOMBRA_FRACA: char = '\u{2591}'; //░
+const SOMBRA_MEDIA: char = '\u{2592}'; // ▒
+const PINTADO: char = '\u{1CE8f}'; //𜺏
+const QUARTO_CIMA_SOMBRA_MEDIA: char = '\u{1FB91}'; // 🮑
+const QUARTO_BAIXO_SOMBRA_MEDIA: char = '\u{1FB92}'; // 🮑
 
 const PAREDE_BORDA: char = '\u{2551}'; // ║
 const BASE_BORDA: char = '\u{2550}'; // ═
@@ -25,6 +23,7 @@ const CANTO_DIREITO_BORDA: char = '\u{255d}'; // ╝
 
 #[derive(Clone, Copy, Debug)]
 pub enum Cor {
+    Vazio,
     Magenta,
     MagentaClaro,
     Azul,
@@ -45,6 +44,7 @@ pub enum Cor {
 impl Cor {
     fn bg(&self) -> String {
         match self {
+            Cor::Vazio => Bg(Reset).to_string(),
             Cor::Magenta => Bg(Magenta).to_string(),
             Cor::MagentaClaro => Bg(LightMagenta).to_string(),
 
@@ -71,6 +71,7 @@ impl Cor {
     }
     fn fg(&self) -> String {
         match &self {
+            Cor::Vazio => Fg(Reset).to_string(),
             Cor::Magenta => Fg(Magenta).to_string(),
             Cor::MagentaClaro => Fg(LightMagenta).to_string(),
 
@@ -97,17 +98,20 @@ impl Cor {
     }
 }
 
-fn paleta(id: u8) -> (Cor, Cor) {
+fn paleta(id: u8) -> (char, char, Cor, Cor) {
+    let esquerdo = ESPACO;
+    let direito = ESPACO;
+
     match id {
-        1 => (Cor::MagentaClaro, Cor::Magenta),   // T
-        2 => (Cor::AzulClaro, Cor::Azul),         // LE
-        3 => (Cor::VermelhoClaro, Cor::Vermelho), // SE
-        4 => (Cor::Amarelo, Cor::VermelhoClaro),  // LD
-        5 => (Cor::VerdeClaro, Cor::Verde),       // SD
-        6 => (Cor::AmareloClaro, Cor::Amarelo),   // O
-        7 => (Cor::CianoClaro, Cor::Ciano),       // I
-        99 => (Cor::Branco, Cor::Cinza),          // fantasma
-        _ => (Cor::Magenta, Cor::Verde),          // ERRO
+        1 => (esquerdo, direito, Cor::Magenta, Cor::Vazio), // T
+        2 => (esquerdo, direito, Cor::Azul, Cor::Vazio),    // LE
+        3 => (esquerdo, direito, Cor::Vermelho, Cor::Vazio), // SE
+        4 => (SOMBRA_MEDIA, SOMBRA_MEDIA, Cor::Amarelo, Cor::Vermelho), // LD
+        5 => (esquerdo, direito, Cor::Verde, Cor::Vazio),   // SD
+        6 => (esquerdo, direito, Cor::Amarelo, Cor::Vazio), // O
+        7 => (esquerdo, direito, Cor::Ciano, Cor::Vazio),   // I
+        99 => (PINTADO, PINTADO, Cor::Vazio, Cor::Cinza),   // fantasma
+        _ => (esquerdo, direito, Cor::Magenta, Cor::Verde), // ERRO
     }
 }
 
@@ -146,10 +150,11 @@ pub fn bloco(vazio: bool, id: u8) -> [Celula; 2] {
     if vazio {
         return [Celula::vazia(); 2];
     }
-    let (bg, fg) = paleta(id);
+
+    let (esq, dir, bg, fg) = paleta(id);
     [
-        Celula::new(ESQUERA_BLOCO, bg, fg, false),
-        Celula::new(DIREITA_BLOCO, bg, fg, false),
+        Celula::new(esq, bg, fg, false),
+        Celula::new(dir, bg, fg, false),
     ]
 }
 
@@ -308,43 +313,4 @@ impl Desenhavel for Frame {
     fn celulas(&self) -> Vec<Vec<Celula>> {
         self.celulas.clone()
     }
-}
-
-pub fn renderizar(estado: Estado, offset_horizontal: u16) -> String {
-    let Estado {
-        peca_atual,
-        x,
-        y,
-        fantasma,
-        mut grid,
-        ..
-    } = estado;
-    let mut render = String::new();
-
-    grid.posicionar_peca_forcado(fantasma.0, fantasma.1, fantasma.2, Some(99));
-    grid.posicionar_peca(estado.peca_atual(), x, y);
-
-    for (i, linha) in grid.posicoes.iter().enumerate() {
-        render.push_str(&" ".repeat(offset_horizontal as usize));
-        render.push(PAREDE_BORDA);
-        for bloco in linha.iter() {
-            if *bloco != 0 {
-                // render.push_str(&paleta(*bloco));
-                render.push(ESQUERA_BLOCO);
-                render.push(DIREITA_BLOCO);
-                render.push_str(&format!("{}{}", Bg(Reset), Fg(Reset)));
-            } else {
-                render.push_str("  ");
-            }
-        }
-        render.push(PAREDE_BORDA);
-        render.push_str("\r\n");
-    }
-
-    render.push_str(&" ".repeat(offset_horizontal as usize));
-    render.push(CANTO_ESQUERDO_BORDA);
-    render.push_str(&BASE_BORDA.to_string().repeat(LARGURA_GRID * 2));
-    render.push(CANTO_DIREITO_BORDA);
-
-    render
 }
