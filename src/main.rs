@@ -1,6 +1,7 @@
 mod estado;
 mod grid;
 mod pecas;
+mod tema;
 mod visual;
 
 use std::{

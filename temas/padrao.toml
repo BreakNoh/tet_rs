@@ -1,0 +1,22 @@
+[borda]
+base = "═"
+parede = "║"
+canto_sup_esq = "╔"
+canto_sup_dir = "╗"
+canto_inf_esq = "╚"
+canto_inf_dir = "╝"
+
+[chars]
+bloco_padrao = "🬴🬸"
+fantasma = "░░"
+
+[cores]
+cor_padrao = ["Preto", "Branco"]
+t = ["MagentaClaro", "Magenta"]
+i = ["CianoClaro", "Ciano"]
+o = ["AmareloClaro", "Amarelo"]
+s = ["VerdeClaro", "Verde"]
+z = ["VermelhoClaro", "Vermelho"]
+l = ["VermelhoClaro", "Amarelo"]
+j = ["AzulClaro", "Azul"]
+fantasma = ["Cinza", "Preto"]

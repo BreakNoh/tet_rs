@@ -5,4 +5,6 @@ edition = "2024"
 
 [dependencies]
 rand = "0.9.2"
+serde = "1.0.228"
 termion = "4.0.6"
+toml = "0.9.11"
