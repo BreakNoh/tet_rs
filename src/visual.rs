@@ -2,28 +2,13 @@ use std::io::{Stdout, Write};
 
 use crate::{
     grid::{ALTURA_GRID, LARGURA_GRID},
-    tema::{self, BordaTema, Tema},
+    tema::{BordaTema, Tema},
 };
 
 use serde::Deserialize;
 use termion::{clear, color::*, cursor, raw::RawTerminal};
 
 const LIMPAR_COR: &str = "\x1b[0m";
-const ESPACO: char = ' ';
-const ESQUERA_BLOCO: char = '\u{1FB34}'; // 🬴 
-const DIREITA_BLOCO: char = '\u{1FB38}'; // 🬸 
-const QUARTO_BAIXO: char = '\u{2584}'; //▄
-const QUARTO_CIMA: char = '\u{2580}'; //▀
-const SOMBRA_FRACA: char = '\u{2591}'; //░
-const SOMBRA_MEDIA: char = '\u{2592}'; // ▒
-const PINTADO: char = '\u{1CE8f}'; //𜺏
-const QUARTO_CIMA_SOMBRA_MEDIA: char = '\u{1FB91}'; // 🮑
-const QUARTO_BAIXO_SOMBRA_MEDIA: char = '\u{1FB92}'; // 🮑
-
-const PAREDE_BORDA: char = '\u{2551}'; // ║
-const BASE_BORDA: char = '\u{2550}'; // ═
-const CANTO_ESQUERDO_BORDA: char = '\u{255a}'; // ╚
-const CANTO_DIREITO_BORDA: char = '\u{255d}'; // ╝ 
 
 #[derive(Clone, Copy, Debug, Deserialize)]
 pub enum Cor {
@@ -102,33 +87,55 @@ impl Cor {
     }
 }
 
-fn paleta(id: u8) -> (char, char, Cor, Cor) {
-    let esquerdo = ESPACO;
-    let direito = ESPACO;
-
-    match id {
-        1 => (esquerdo, direito, Cor::Magenta, Cor::Vazio), // T
-        2 => (esquerdo, direito, Cor::Azul, Cor::Vazio),    // LE
-        3 => (esquerdo, direito, Cor::Vermelho, Cor::Vazio), // SE
-        4 => (SOMBRA_MEDIA, SOMBRA_MEDIA, Cor::Amarelo, Cor::Vermelho), // LD
-        5 => (esquerdo, direito, Cor::Verde, Cor::Vazio),   // SD
-        6 => (esquerdo, direito, Cor::Amarelo, Cor::Vazio), // O
-        7 => (esquerdo, direito, Cor::Ciano, Cor::Vazio),   // I
-        99 => (PINTADO, PINTADO, Cor::Vazio, Cor::Cinza),   // fantasma
-        _ => (esquerdo, direito, Cor::Magenta, Cor::Verde), // ERRO
-    }
-}
-
 #[derive(Clone, Copy, Debug)]
 pub struct Celula {
-    transparente: bool,
-    ch: char,
-    bg: Cor,
-    fg: Cor,
+    pub transparente: bool,
+    pub ch: char,
+    pub bg: Cor,
+    pub fg: Cor,
+}
+
+pub fn caixa(largura: usize, altura: usize, tema: &Tema) -> Frame {
+    let mut frame = Frame::new(largura, altura, None);
+
+    let BordaTema {
+        parede,
+        base,
+        canto_inf_dir,
+        canto_inf_esq,
+        canto_sup_dir,
+        canto_sup_esq,
+        cor,
+        padrao,
+        ..
+    } = tema.borda;
+    let [bg, fg] = cor.unwrap_or(tema.cores.padrao);
+
+    let parede = Celula::new(parede.unwrap_or(padrao), bg, fg, false);
+    let base = Celula::new(base.unwrap_or(padrao), bg, fg, false);
+
+    let canto_inf_dir = Celula::new(canto_inf_dir.unwrap_or(padrao), bg, fg, false);
+    let canto_inf_esq = Celula::new(canto_inf_esq.unwrap_or(padrao), bg, fg, false);
+    let canto_sup_dir = Celula::new(canto_sup_dir.unwrap_or(padrao), bg, fg, false);
+    let canto_sup_esq = Celula::new(canto_sup_esq.unwrap_or(padrao), bg, fg, false);
+
+    let (largura, altura) = (largura - 1, altura - 1);
+
+    frame.desenhar_quadrado(base, 0, 0, largura, 0); // topo
+    frame.desenhar_quadrado(base, 0, altura, largura, altura); // base
+    frame.desenhar_quadrado(parede, 0, 0, 0, altura); // parede esquerda
+    frame.desenhar_quadrado(parede, largura, 0, largura, altura); // parede direita
+
+    frame.desenhar_celula(canto_sup_esq, 0, 0);
+    frame.desenhar_celula(canto_sup_dir, largura, 0);
+    frame.desenhar_celula(canto_inf_esq, 0, altura);
+    frame.desenhar_celula(canto_inf_dir, largura, altura);
+
+    frame
 }
 
 pub fn borda(tema: &Tema) -> Vec<Vec<Celula>> {
-    let mut frame = Frame::new(LARGURA_GRID * 2 + 2, ALTURA_GRID + 1);
+    let mut frame = Frame::new(LARGURA_GRID * 2 + 2, ALTURA_GRID + 1, None);
 
     let BordaTema {
         parede,
@@ -139,6 +146,7 @@ pub fn borda(tema: &Tema) -> Vec<Vec<Celula>> {
         padrao,
         ..
     } = tema.borda;
+
     let [bg, fg] = cor.unwrap_or(tema.cores.padrao);
 
     let parede = Celula::new(parede.unwrap_or(padrao), bg, fg, false);
@@ -154,6 +162,7 @@ pub fn borda(tema: &Tema) -> Vec<Vec<Celula>> {
         LARGURA_GRID * 2 + 1,
         ALTURA_GRID - 1,
     );
+
     frame.desenhar_quadrado(base, 1, ALTURA_GRID, LARGURA_GRID * 2 + 1, ALTURA_GRID);
     frame.desenhar_celula(canto_esq, 0, ALTURA_GRID);
     frame.desenhar_celula(canto_dir, LARGURA_GRID * 2 + 1, ALTURA_GRID);
@@ -199,18 +208,22 @@ pub struct Frame {
 }
 
 pub trait Desenhavel {
-    fn celulas(&self, tema: &Tema) -> Vec<Vec<Celula>> {
+    fn celulas(&self, _: &Tema) -> Vec<Vec<Celula>> {
         Vec::new()
     }
-    fn frame(&self, tema: &Tema) -> Frame {
-        Frame::new(0, 0)
+    fn frame(&self, _: &Tema) -> Frame {
+        Frame::new(0, 0, None)
     }
 }
 
 impl Frame {
-    pub fn new(largura: usize, altura: usize) -> Self {
+    pub fn new(largura: usize, altura: usize, fundo: Option<Celula>) -> Self {
         let celulas = (0..altura)
-            .map(|_| (0..largura).map(|_| Celula::vazia()).collect())
+            .map(|_| {
+                (0..largura)
+                    .map(|_| fundo.unwrap_or(Celula::vazia()))
+                    .collect()
+            })
             .collect();
 
         Frame {
@@ -293,7 +306,7 @@ impl Frame {
             for (dx, celula) in linha.iter().enumerate() {
                 let pos_x = dx as isize + x;
 
-                if pos_x > self.altura as isize || pos_x < 0 {
+                if pos_x >= self.largura as isize || pos_x < 0 {
                     continue;
                 }
 
@@ -332,7 +345,7 @@ impl Frame {
 }
 
 impl Desenhavel for Frame {
-    fn celulas(&self, tema: &Tema) -> Vec<Vec<Celula>> {
+    fn celulas(&self, _: &Tema) -> Vec<Vec<Celula>> {
         self.celulas.clone()
     }
 }

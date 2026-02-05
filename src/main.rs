@@ -16,7 +16,7 @@ use crate::{
     estado::Estado,
     grid::{ALTURA_GRID, LARGURA_GRID},
     tema::Tema,
-    visual::{Frame, borda},
+    visual::{Celula, Cor, Frame, borda},
 };
 
 enum Comando {
@@ -25,6 +25,8 @@ enum Comando {
     Nada,
     ResetarTick,
 }
+
+const TAMANHO_BOLSO: usize = 6 * 2;
 
 fn main() {
     let tema = match Tema::carregar("./temas/padrao.toml") {
@@ -69,10 +71,8 @@ fn main() {
         if ultimo_render.elapsed() >= Duration::from_millis(delay_render) {
             ultimo_render = Instant::now();
 
-            renderizador.desenhar(estado, 1, 0, false, &tema);
+            renderizador.desenhar(estado, TAMANHO_BOLSO as isize + 2, 0, false, &tema);
             renderizador.renderizar(&mut stdout, 1);
-
-            // renderizar(&estado, &mut stdout);
         } else {
             std::thread::sleep(Duration::from_millis(25));
         }
@@ -102,9 +102,24 @@ fn main() {
 }
 
 fn preparar_renderizador(tema: &Tema) -> Frame {
-    let mut frame = Frame::new((LARGURA_GRID + 1) * 2, ALTURA_GRID + 1);
+    let (largura_grid, altura_grid) = ((LARGURA_GRID + 1) * 2, ALTURA_GRID + 1);
+    let fundo = Celula {
+        transparente: false,
+        ch: 'X',
+        bg: Cor::Magenta,
+        fg: Cor::Preto,
+    };
+    let teste = Celula {
+        transparente: false,
+        ch: 'O',
+        bg: Cor::Verde,
+        fg: Cor::Vermelho,
+    };
 
-    frame.desenhar_celulas(borda(tema), 0, 0, false);
+    let mut frame = Frame::new(largura_grid + 1 + TAMANHO_BOLSO, altura_grid, None);
+
+    frame.desenhar_celulas(borda(tema), TAMANHO_BOLSO as isize + 1, 0, false);
+    frame.desenhar_celula(teste, largura_grid + TAMANHO_BOLSO, altura_grid);
 
     frame
 }
