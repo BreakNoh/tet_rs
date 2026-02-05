@@ -1,4 +1,4 @@
-use crate::visual::{Celula, Cor, Desenhavel, Frame, bloco};
+use crate::visual::{Celula, Desenhavel, Frame, bloco};
 
 pub const T: Peca<3> = Peca {
     blocos: [[0, 1, 0], [1, 1, 1], [0; 3]],
@@ -140,9 +140,6 @@ impl<const N: usize> Peca<N> {
         self.id = id;
     }
 }
-
-const ESQUERA_BLOCO: char = '\u{1FB34}'; // 🬴 
-const DIREITA_BLOCO: char = '\u{1FB38}'; // 🬸 
 
 impl Desenhavel for WrapperPeca {
     fn celulas(&self) -> Vec<Vec<Celula>> {

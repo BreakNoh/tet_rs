@@ -32,7 +32,6 @@ fn main() {
     let mut estado = Estado::new();
     let mut renderizador = preparar_renderizador();
 
-    let mut stdout = io::stdout().into_raw_mode().unwrap();
     let mut delay_tick = 400;
     let delay_render = 50;
 
@@ -121,14 +120,4 @@ fn tratar_input(ch: Key, estado: &mut Estado) -> Comando {
     };
 
     Comando::Nada
-}
-
-fn renderizar(estado: &Estado, stdout: &mut termion::raw::RawTerminal<io::Stdout>) {
-    let (colunas, linhas) = terminal_size().unwrap();
-    let offset_horizontal = colunas / 2 - (LARGURA_GRID + 1) as u16;
-    let offset_vertical = linhas / 2 - ((ALTURA_GRID + 1) / 2) as u16;
-
-    write!(stdout, "{}", cursor::Goto(1, offset_vertical)).unwrap();
-    write!(stdout, "{}", estado.render(offset_horizontal)).unwrap();
-    stdout.flush().unwrap();
 }

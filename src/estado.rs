@@ -4,8 +4,8 @@ use rand::seq::SliceRandom;
 
 use crate::{
     grid::{self, Colisao, Grid},
-    pecas::{self, ANGULOS, Peca, WrapperPeca},
-    visual::{Desenhavel, Frame, renderizar},
+    pecas::{self, ANGULOS, WrapperPeca},
+    visual::Desenhavel,
 };
 
 const ORIGEM_X: isize = 4;
@@ -108,12 +108,6 @@ impl Estado {
             self.trocar_peca();
         }
     }
-
-    pub fn render(&self, offset_horizontal: u16) -> String {
-        let render = renderizar(*self, offset_horizontal);
-        render
-    }
-
     fn atualizar_fantasma(&mut self) {
         let mut dy = self.y;
 
