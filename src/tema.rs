@@ -1,47 +1,94 @@
 use crate::{pecas::WrapperPeca, visual::Cor};
+use serde::Deserialize;
+use std::fs::read_to_string;
 
-struct Tema {
-    borda: BordaTema,
-    cores: CoresTema,
-    chars: CharsTema,
+#[derive(Debug, Deserialize)]
+pub struct Tema {
+    pub borda: BordaTema,
+    pub cores: CoresTema,
+    pub chars: CharsTema,
 }
 
-struct BordaTema {
-    base: char,
-    parede: char,
-    canto_sup_esq: char,
-    canto_sup_dir: char,
-    canto_inf_esq: char,
-    canto_inf_dir: char,
+#[derive(Debug, Deserialize)]
+pub struct BordaTema {
+    pub cor: Option<[Cor; 2]>,
+    pub padrao: char,
+    pub base: Option<char>,
+    pub parede: Option<char>,
+    pub canto_sup_esq: Option<char>,
+    pub canto_sup_dir: Option<char>,
+    pub canto_inf_esq: Option<char>,
+    pub canto_inf_dir: Option<char>,
 }
 
-struct CharsTema {
-    padrao: [char; 2],
-    fantasma: Option<[char; 2]>,
-    t: Option<[char; 2]>,
-    i: Option<[char; 2]>,
-    o: Option<[char; 2]>,
-    s: Option<[char; 2]>,
-    z: Option<[char; 2]>,
-    l: Option<[char; 2]>,
-    j: Option<[char; 2]>,
+#[derive(Debug, Deserialize)]
+pub struct CharsTema {
+    pub padrao: [char; 2],
+    pub fantasma: Option<[char; 2]>,
+    pub t: Option<[char; 2]>,
+    pub i: Option<[char; 2]>,
+    pub o: Option<[char; 2]>,
+    pub s: Option<[char; 2]>,
+    pub z: Option<[char; 2]>,
+    pub l: Option<[char; 2]>,
+    pub j: Option<[char; 2]>,
 }
 
-struct CoresTema {
-    padrao: [Cor; 2],
-    fantasma: Option<[Cor; 2]>,
-    t: Option<[Cor; 2]>,
-    i: Option<[Cor; 2]>,
-    o: Option<[Cor; 2]>,
-    s: Option<[Cor; 2]>,
-    z: Option<[Cor; 2]>,
-    l: Option<[Cor; 2]>,
-    j: Option<[Cor; 2]>,
+#[derive(Debug, Deserialize)]
+pub struct CoresTema {
+    pub padrao: [Cor; 2],
+    pub fantasma: Option<[Cor; 2]>,
+    pub t: Option<[Cor; 2]>,
+    pub i: Option<[Cor; 2]>,
+    pub o: Option<[Cor; 2]>,
+    pub s: Option<[Cor; 2]>,
+    pub z: Option<[Cor; 2]>,
+    pub l: Option<[Cor; 2]>,
+    pub j: Option<[Cor; 2]>,
+}
+
+impl Default for Tema {
+    fn default() -> Self {
+        Tema {
+            borda: BordaTema {
+                cor: None,
+                padrao: 'X',
+                base: None,
+                parede: None,
+                canto_sup_esq: None,
+                canto_sup_dir: None,
+                canto_inf_esq: None,
+                canto_inf_dir: None,
+            },
+            cores: CoresTema {
+                padrao: [Cor::Vazio, Cor::Branco],
+                fantasma: None,
+                t: None,
+                i: None,
+                o: None,
+                s: None,
+                z: None,
+                l: None,
+                j: None,
+            },
+            chars: CharsTema {
+                padrao: ['[', ']'],
+                fantasma: None,
+                t: None,
+                i: None,
+                o: None,
+                s: None,
+                z: None,
+                l: None,
+                j: None,
+            },
+        }
+    }
 }
 
 impl Tema {
-    pub fn visual_peca(&self, peca: WrapperPeca) -> (char, char, Cor, Cor) {
-        let [bg, fg] = match peca.id() {
+    pub fn visual_id(&self, id: u8) -> (char, char, Cor, Cor) {
+        let [bg, fg] = match id {
             1 => self.cores.t,
             2 => self.cores.j,
             3 => self.cores.z,
@@ -53,7 +100,7 @@ impl Tema {
             _ => Some(self.cores.padrao),
         }
         .unwrap_or(self.cores.padrao);
-        let [esq, dir] = match peca.id() {
+        let [esq, dir] = match id {
             1 => self.chars.t,
             2 => self.chars.j,
             3 => self.chars.z,
@@ -67,5 +114,22 @@ impl Tema {
         .unwrap_or(self.chars.padrao);
 
         (esq, dir, bg, fg)
+    }
+    pub fn visual_peca(&self, peca: WrapperPeca) -> (char, char, Cor, Cor) {
+        self.visual_id(peca.id())
+    }
+
+    pub fn carregar(arquivo: String) -> Tema {
+        let texto_tema = read_to_string(arquivo);
+
+        if texto_tema.is_err() {
+            return Tema::default();
+        }
+
+        if let Ok(tema_parseado) = toml::from_str(&texto_tema.unwrap()) {
+            tema_parseado
+        } else {
+            Tema::default()
+        }
     }
 }

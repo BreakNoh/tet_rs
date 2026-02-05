@@ -1,7 +1,11 @@
 use std::io::{Stdout, Write};
 
-use crate::grid::{ALTURA_GRID, LARGURA_GRID};
+use crate::{
+    grid::{ALTURA_GRID, LARGURA_GRID},
+    tema::{self, BordaTema, Tema},
+};
 
+use serde::Deserialize;
 use termion::{clear, color::*, cursor, raw::RawTerminal};
 
 const LIMPAR_COR: &str = "\x1b[0m";
@@ -21,7 +25,7 @@ const BASE_BORDA: char = '\u{2550}'; // ═
 const CANTO_ESQUERDO_BORDA: char = '\u{255a}'; // ╚
 const CANTO_DIREITO_BORDA: char = '\u{255d}'; // ╝ 
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize)]
 pub enum Cor {
     Vazio,
     Magenta,
@@ -123,13 +127,24 @@ pub struct Celula {
     fg: Cor,
 }
 
-pub fn borda() -> Vec<Vec<Celula>> {
+pub fn borda(tema: &Tema) -> Vec<Vec<Celula>> {
     let mut frame = Frame::new(LARGURA_GRID * 2 + 2, ALTURA_GRID + 1);
 
-    let parede = Celula::new(PAREDE_BORDA, Cor::Preto, Cor::Branco, false);
-    let base = Celula::new(BASE_BORDA, Cor::Preto, Cor::Branco, false);
-    let canto_dir = Celula::new(CANTO_DIREITO_BORDA, Cor::Preto, Cor::Branco, false);
-    let canto_esq = Celula::new(CANTO_ESQUERDO_BORDA, Cor::Preto, Cor::Branco, false);
+    let BordaTema {
+        parede,
+        base,
+        canto_inf_dir,
+        canto_inf_esq,
+        cor,
+        padrao,
+        ..
+    } = tema.borda;
+    let [bg, fg] = cor.unwrap_or(tema.cores.padrao);
+
+    let parede = Celula::new(parede.unwrap_or(padrao), bg, fg, false);
+    let base = Celula::new(base.unwrap_or(padrao), bg, fg, false);
+    let canto_dir = Celula::new(canto_inf_dir.unwrap_or(padrao), bg, fg, false);
+    let canto_esq = Celula::new(canto_inf_esq.unwrap_or(padrao), bg, fg, false);
 
     frame.desenhar_quadrado(parede, 0, 0, 0, ALTURA_GRID - 1);
     frame.desenhar_quadrado(
@@ -143,15 +158,15 @@ pub fn borda() -> Vec<Vec<Celula>> {
     frame.desenhar_celula(canto_esq, 0, ALTURA_GRID);
     frame.desenhar_celula(canto_dir, LARGURA_GRID * 2 + 1, ALTURA_GRID);
 
-    frame.celulas()
+    frame.celulas(tema)
 }
 
-pub fn bloco(vazio: bool, id: u8) -> [Celula; 2] {
+pub fn bloco(vazio: bool, id: u8, tema: &Tema) -> [Celula; 2] {
     if vazio {
         return [Celula::vazia(); 2];
     }
 
-    let (esq, dir, bg, fg) = paleta(id);
+    let (esq, dir, bg, fg) = tema.visual_id(id);
     [
         Celula::new(esq, bg, fg, false),
         Celula::new(dir, bg, fg, false),
@@ -184,10 +199,10 @@ pub struct Frame {
 }
 
 pub trait Desenhavel {
-    fn celulas(&self) -> Vec<Vec<Celula>> {
+    fn celulas(&self, tema: &Tema) -> Vec<Vec<Celula>> {
         Vec::new()
     }
-    fn frame(&self) -> Frame {
+    fn frame(&self, tema: &Tema) -> Frame {
         Frame::new(0, 0)
     }
 }
@@ -245,12 +260,19 @@ impl Frame {
         }
     }
 
-    pub fn desenhar(&mut self, objeto: impl Desenhavel, x: isize, y: isize, transparencia: bool) {
-        let mut celulas = objeto.celulas();
-        let frame = objeto.frame();
+    pub fn desenhar(
+        &mut self,
+        objeto: impl Desenhavel,
+        x: isize,
+        y: isize,
+        transparencia: bool,
+        tema: &Tema,
+    ) {
+        let mut celulas = objeto.celulas(tema);
+        let frame = objeto.frame(tema);
 
         if celulas.len() == 0 {
-            celulas = frame.celulas();
+            celulas = frame.celulas(tema);
         }
 
         self.desenhar_celulas(celulas, x, y, transparencia);
@@ -310,7 +332,7 @@ impl Frame {
 }
 
 impl Desenhavel for Frame {
-    fn celulas(&self) -> Vec<Vec<Celula>> {
+    fn celulas(&self, tema: &Tema) -> Vec<Vec<Celula>> {
         self.celulas.clone()
     }
 }

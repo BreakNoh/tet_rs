@@ -15,6 +15,7 @@ use termion::{
 use crate::{
     estado::Estado,
     grid::{ALTURA_GRID, LARGURA_GRID},
+    tema::Tema,
     visual::{Frame, borda},
 };
 
@@ -27,11 +28,12 @@ enum Comando {
 
 fn main() {
     let stdin = async_stdin();
+    let tema = Tema::default();
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     let mut keys = stdin.keys();
 
     let mut estado = Estado::new();
-    let mut renderizador = preparar_renderizador();
+    let mut renderizador = preparar_renderizador(&tema);
 
     let mut delay_tick = 400;
     let delay_render = 50;
@@ -59,7 +61,7 @@ fn main() {
         if ultimo_render.elapsed() >= Duration::from_millis(delay_render) {
             ultimo_render = Instant::now();
 
-            renderizador.desenhar(estado, 1, 0, false);
+            renderizador.desenhar(estado, 1, 0, false, &tema);
             renderizador.renderizar(&mut stdout, 1);
 
             // renderizar(&estado, &mut stdout);
@@ -91,10 +93,10 @@ fn main() {
     stdout.flush().unwrap();
 }
 
-fn preparar_renderizador() -> Frame {
+fn preparar_renderizador(tema: &Tema) -> Frame {
     let mut frame = Frame::new((LARGURA_GRID + 1) * 2, ALTURA_GRID + 1);
 
-    frame.desenhar_celulas(borda(), 0, 0, false);
+    frame.desenhar_celulas(borda(tema), 0, 0, false);
 
     frame
 }

@@ -1,5 +1,6 @@
 use crate::{
     pecas::WrapperPeca,
+    tema::Tema,
     visual::{Desenhavel, Frame, bloco},
 };
 
@@ -134,7 +135,7 @@ impl Grid {
 }
 
 impl Desenhavel for Grid {
-    fn celulas(&self) -> Vec<Vec<crate::visual::Celula>> {
+    fn celulas(&self, tema: &Tema) -> Vec<Vec<crate::visual::Celula>> {
         let celulas: Vec<Vec<crate::visual::Celula>> = self
             .posicoes
             .iter()
@@ -142,9 +143,9 @@ impl Desenhavel for Grid {
                 lin.iter()
                     .map(|blo| {
                         if *blo != 0 {
-                            bloco(false, *blo)
+                            bloco(false, *blo, tema)
                         } else {
-                            bloco(true, 0)
+                            bloco(true, 0, tema)
                         }
                     })
                     .flatten()
@@ -156,7 +157,7 @@ impl Desenhavel for Grid {
 
         celulas
     }
-    fn frame(&self) -> crate::visual::Frame {
-        Frame::de_celula(self.celulas())
+    fn frame(&self, tema: &Tema) -> crate::visual::Frame {
+        Frame::de_celula(self.celulas(tema))
     }
 }

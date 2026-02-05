@@ -1,4 +1,7 @@
-use crate::visual::{Celula, Desenhavel, Frame, bloco};
+use crate::{
+    tema::Tema,
+    visual::{Celula, Desenhavel, Frame, bloco},
+};
 
 pub const T: Peca<3> = Peca {
     blocos: [[0, 1, 0], [1, 1, 1], [0; 3]],
@@ -142,29 +145,29 @@ impl<const N: usize> Peca<N> {
 }
 
 impl Desenhavel for WrapperPeca {
-    fn celulas(&self) -> Vec<Vec<Celula>> {
+    fn celulas(&self, tema: &Tema) -> Vec<Vec<Celula>> {
         match self {
-            WrapperPeca::P2(p) => p.celulas(),
-            WrapperPeca::P3(p) => p.celulas(),
-            WrapperPeca::P5(p) => p.celulas(),
+            WrapperPeca::P2(p) => p.celulas(tema),
+            WrapperPeca::P3(p) => p.celulas(tema),
+            WrapperPeca::P5(p) => p.celulas(tema),
         }
     }
-    fn frame(&self) -> crate::visual::Frame {
-        Frame::de_celula(self.celulas())
+    fn frame(&self, tema: &Tema) -> crate::visual::Frame {
+        Frame::de_celula(self.celulas(tema))
     }
 }
 
 impl<const N: usize> Desenhavel for Peca<N> {
-    fn celulas(&self) -> Vec<Vec<Celula>> {
+    fn celulas(&self, tema: &Tema) -> Vec<Vec<Celula>> {
         self.blocos
             .iter()
             .map(|lin| {
                 lin.iter()
                     .map(|blo| {
                         if *blo != 0 {
-                            bloco(false, self.id())
+                            bloco(false, self.id(), tema)
                         } else {
-                            bloco(true, 0)
+                            bloco(true, 0, tema)
                         }
                     })
                     .flatten()
