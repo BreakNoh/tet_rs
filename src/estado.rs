@@ -53,6 +53,7 @@ impl Estado {
     }
 
     pub fn derrubar_direto(&mut self) {
+        self.fantasma.0.mudar_id(self.peca_atual.id());
         self.trocar_peca_bruto(self.fantasma.0, self.fantasma.1, self.fantasma.2);
     }
 
@@ -123,6 +124,8 @@ impl Estado {
                 == Colisao::Base
             {
                 self.fantasma = (self.peca_atual(), self.x, dy);
+                self.fantasma.0.mudar_id(99);
+
                 return;
             } else {
                 dy += 1;

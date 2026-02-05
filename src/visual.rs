@@ -6,8 +6,15 @@ use crate::{
 };
 
 use super::{grid::Grid, pecas::WrapperPeca};
-use termion::{clear, color::*, cursor, raw::RawTerminal, style};
+use termion::{
+    clear,
+    color::{self, *},
+    cursor,
+    raw::RawTerminal,
+    style,
+};
 
+const LIMPAR_COR: &str = "\x1b[0m";
 const ESQUERA_BLOCO: char = '\u{1FB34}'; // 🬴 
 const DIREITA_BLOCO: char = '\u{1FB38}'; // 🬸 
 
@@ -90,17 +97,17 @@ impl Cor {
     }
 }
 
-fn paleta(id: u8) -> String {
+fn paleta(id: u8) -> (Cor, Cor) {
     match id {
-        1 => format!("{}{}", Bg(LightMagenta), Fg(Magenta)), // T
-        2 => format!("{}{}", Bg(LightBlue), Fg(Blue)),       // LE
-        3 => format!("{}{}", Bg(LightRed), Fg(Red)),         // SE
-        4 => format!("{}{}", Bg(LightRed), Fg(Yellow)),      // LD
-        5 => format!("{}{}", Bg(LightGreen), Fg(Green)),     // SD
-        6 => format!("{}{}", Bg(LightYellow), Fg(Yellow)),   // O
-        7 => format!("{}{}", Bg(LightCyan), Fg(Cyan)),       // I
-        99 => format!("{}{}", Bg(White), Fg(LightBlack)),    // fantasma
-        _ => String::from(""),
+        1 => (Cor::MagentaClaro, Cor::Magenta),   // T
+        2 => (Cor::AzulClaro, Cor::Azul),         // LE
+        3 => (Cor::VermelhoClaro, Cor::Vermelho), // SE
+        4 => (Cor::Amarelo, Cor::VermelhoClaro),  // LD
+        5 => (Cor::VerdeClaro, Cor::Verde),       // SD
+        6 => (Cor::AmareloClaro, Cor::Amarelo),   // O
+        7 => (Cor::CianoClaro, Cor::Ciano),       // I
+        99 => (Cor::Branco, Cor::Cinza),          // fantasma
+        _ => (Cor::Magenta, Cor::Verde),          // ERRO
     }
 }
 
@@ -135,13 +142,14 @@ pub fn borda() -> Vec<Vec<Celula>> {
     frame.celulas()
 }
 
-pub fn bloco(vazio: bool) -> [Celula; 2] {
+pub fn bloco(vazio: bool, id: u8) -> [Celula; 2] {
     if vazio {
         return [Celula::vazia(); 2];
     }
+    let (bg, fg) = paleta(id);
     [
-        Celula::new(ESQUERA_BLOCO, Cor::Branco, Cor::Branco, false),
-        Celula::new(DIREITA_BLOCO, Cor::Branco, Cor::Branco, false),
+        Celula::new(ESQUERA_BLOCO, bg, fg, false),
+        Celula::new(DIREITA_BLOCO, bg, fg, false),
     ]
 }
 
@@ -276,7 +284,10 @@ impl Frame {
 
         for linha in self.celulas.iter() {
             for c in linha.iter() {
+                buffer.push_str(&c.bg.bg());
+                buffer.push_str(&c.fg.fg());
                 buffer.push(c.ch);
+                buffer.push_str(LIMPAR_COR);
             }
             buffer.push_str("\r\n");
         }
@@ -318,7 +329,7 @@ pub fn renderizar(estado: Estado, offset_horizontal: u16) -> String {
         render.push(PAREDE_BORDA);
         for bloco in linha.iter() {
             if *bloco != 0 {
-                render.push_str(&paleta(*bloco));
+                // render.push_str(&paleta(*bloco));
                 render.push(ESQUERA_BLOCO);
                 render.push(DIREITA_BLOCO);
                 render.push_str(&format!("{}{}", Bg(Reset), Fg(Reset)));

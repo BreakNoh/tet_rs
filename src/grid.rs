@@ -49,7 +49,7 @@ impl Grid {
                 if bloco_peca != 0 {
                     let x = (x + dx) as usize;
                     let y = (y + dy) as usize;
-                    self.posicoes[y][x] = valor_forcado.unwrap_or(bloco_peca);
+                    self.posicoes[y][x] = valor_forcado.unwrap_or(peca.id());
                 }
             }
         }
@@ -140,7 +140,13 @@ impl Desenhavel for Grid {
             .iter()
             .map(|lin| {
                 lin.iter()
-                    .map(|blo| if *blo != 0 { bloco(false) } else { bloco(true) })
+                    .map(|blo| {
+                        if *blo != 0 {
+                            bloco(false, *blo)
+                        } else {
+                            bloco(true, 0)
+                        }
+                    })
                     .flatten()
                     .collect()
             })

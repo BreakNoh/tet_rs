@@ -1,23 +1,32 @@
+use crate::visual::{Celula, Cor, Desenhavel, Frame, bloco};
+
 pub const T: Peca<3> = Peca {
     blocos: [[0, 1, 0], [1, 1, 1], [0; 3]],
+    id: 1,
 };
 pub const LE: Peca<3> = Peca {
     blocos: [[2, 0, 0], [2, 2, 2], [0; 3]],
+    id: 2,
 };
 pub const SE: Peca<3> = Peca {
     blocos: [[3, 3, 0], [0, 3, 3], [0; 3]],
+    id: 3,
 };
 pub const LD: Peca<3> = Peca {
     blocos: [[0, 0, 4], [4, 4, 4], [0; 3]],
+    id: 4,
 };
 pub const SD: Peca<3> = Peca {
     blocos: [[0, 5, 5], [5, 5, 0], [0; 3]],
+    id: 5,
 };
 pub const O: Peca<2> = Peca {
     blocos: [[6; 2]; 2],
+    id: 6,
 };
 pub const I: Peca<5> = Peca {
     blocos: [[0; 5], [0; 5], [7, 7, 7, 7, 0], [0; 5], [0; 5]],
+    id: 7,
 };
 
 pub const PECAS: [WrapperPeca; 7] = [
@@ -43,6 +52,7 @@ pub enum Angulo {
 #[derive(Clone, Copy, Debug)]
 pub struct Peca<const N: usize> {
     blocos: [[u8; N]; N],
+    id: u8,
 }
 
 fn mapear<const N: usize>(x: usize, y: usize, angulo: Angulo) -> (usize, usize) {
@@ -83,6 +93,20 @@ impl WrapperPeca {
             WrapperPeca::P5(_) => 5,
         }
     }
+    pub fn mudar_id(&mut self, id: u8) {
+        match self {
+            WrapperPeca::P2(p) => p.mudar_id(id),
+            WrapperPeca::P3(p) => p.mudar_id(id),
+            WrapperPeca::P5(p) => p.mudar_id(id),
+        }
+    }
+    pub fn id(&self) -> u8 {
+        match self {
+            WrapperPeca::P2(p) => p.id(),
+            WrapperPeca::P3(p) => p.id(),
+            WrapperPeca::P5(p) => p.id(),
+        }
+    }
 }
 
 impl<const N: usize> Peca<N> {
@@ -98,6 +122,7 @@ impl<const N: usize> Peca<N> {
 
         Peca {
             blocos: blocos_rotacionados,
+            id: self.id,
         }
     }
 
@@ -106,6 +131,13 @@ impl<const N: usize> Peca<N> {
             return 0;
         }
         self.blocos[y][x]
+    }
+
+    pub fn id(&self) -> u8 {
+        self.id
+    }
+    pub fn mudar_id(&mut self, id: u8) {
+        self.id = id;
     }
 }
 
@@ -131,7 +163,13 @@ impl<const N: usize> Desenhavel for Peca<N> {
             .iter()
             .map(|lin| {
                 lin.iter()
-                    .map(|blo| if *blo != 0 { bloco(false) } else { bloco(true) })
+                    .map(|blo| {
+                        if *blo != 0 {
+                            bloco(false, self.id())
+                        } else {
+                            bloco(true, 0)
+                        }
+                    })
                     .flatten()
                     .collect()
             })
