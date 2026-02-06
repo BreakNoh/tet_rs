@@ -30,6 +30,7 @@ pub struct Estado {
     trocou: bool,
 
     pecas: [WrapperPeca; 7],
+    pecas_prox: [WrapperPeca; 7],
     pub grid: Grid,
 }
 
@@ -37,6 +38,9 @@ impl Estado {
     pub fn new() -> Self {
         let mut pecas = pecas::PECAS;
         pecas.shuffle(&mut rand::rng());
+        let mut pecas_prox = pecas::PECAS;
+        pecas_prox.shuffle(&mut rand::rng());
+
         let mut estado = Estado {
             x: ORIGEM_X,
             y: ORIGEM_Y,
@@ -44,6 +48,7 @@ impl Estado {
             indice_peca: 0,
             peca_atual: pecas[0],
             pecas,
+            pecas_prox,
             grid: grid::Grid::default(),
             fantasma: (WrapperPeca::P3(pecas::T), 0, 0),
             peca_guardada: None,
@@ -83,6 +88,16 @@ impl Estado {
         }
     }
 
+    pub fn prox_peca(&mut self, ind: usize) -> WrapperPeca {
+        let indice_real = self.indice_peca + ind;
+
+        if indice_real < NUMERO_PECAS {
+            self.pecas[indice_real]
+        } else {
+            self.pecas_prox[indice_real % NUMERO_PECAS]
+        }
+    }
+
     fn alterar_peca(&mut self) {
         self.angulo = 0;
         self.x = ORIGEM_X;
@@ -90,9 +105,12 @@ impl Estado {
 
         self.indice_peca += 1;
         if self.indice_peca == NUMERO_PECAS {
+            self.pecas = self.pecas_prox;
+
             self.indice_peca = 0;
-            self.pecas.shuffle(&mut rand::rng());
+            self.pecas_prox.shuffle(&mut rand::rng());
         }
+
         self.peca_atual = self.pecas[self.indice_peca];
         self.atualizar_fantasma();
     }

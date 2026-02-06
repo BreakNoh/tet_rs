@@ -187,7 +187,7 @@ impl Celula {
         Celula {
             transparente: true,
             ch: ' ',
-            bg: Cor::Preto,
+            bg: Cor::Vazio,
             fg: Cor::Branco,
         }
     }
@@ -248,11 +248,14 @@ impl Frame {
     }
 
     pub fn desenhar_celula_forcado(&mut self, celula: Celula, x: usize, y: usize) {
+        if x >= self.largura || y >= self.altura {
+            return;
+        }
         self.celulas[y][x] = celula;
     }
 
     pub fn desenhar_celula(&mut self, celula: Celula, x: usize, y: usize) {
-        if celula.transparente || x >= self.largura || y >= self.altura {
+        if celula.transparente {
             return;
         }
         self.desenhar_celula_forcado(celula, x, y);
@@ -268,7 +271,7 @@ impl Frame {
     ) {
         for y in y0..=yf {
             for x in x0..=xf {
-                self.desenhar_celula(celula, x, y);
+                self.desenhar_celula_forcado(celula, x, y);
             }
         }
     }

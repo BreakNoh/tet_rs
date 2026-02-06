@@ -10,7 +10,7 @@ canto_inf_dir = "╝"
 
 [chars]
 padrao = ["🬴", "🬸"]
-fantasma = ["░", "░"]
+fantasma = [" ", " "]
 
 [cores]
 padrao = ["Preto", "Branco"]
