@@ -348,6 +348,13 @@ impl Frame {
         write!(stdout, "{limpar_tela}{origem}{buffer}").unwrap();
         stdout.flush().unwrap();
     }
+
+    pub fn escrever(&mut self, texto: &str, x: usize, y: usize) {
+        for (i, ch) in texto.chars().enumerate() {
+            let celula = Celula::new(ch, Cor::Vazio, Cor::Branco, false);
+            self.desenhar_celula(celula, x + i, y);
+        }
+    }
 }
 
 impl Desenhavel for Frame {
