@@ -10,9 +10,10 @@ use crate::{
 };
 
 const ORIGEM_X: isize = 4;
-const ORIGEM_Y: isize = 1;
+const ORIGEM_Y: isize = 0;
 const NUMERO_PECAS: usize = 7;
 const NUMERO_ANGULOS: usize = 4;
+const LINHAS_PARA_PASSAR_NIVEL: u32 = 10;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Estado {
@@ -28,6 +29,10 @@ pub struct Estado {
     pub peca_guardada: Option<WrapperPeca>,
 
     trocou: bool,
+
+    pub nivel: u32,
+    pub pontuacao: u32,
+    pub linhas_limpas: u32,
 
     pecas: [WrapperPeca; 7],
     pecas_prox: [WrapperPeca; 7],
@@ -47,6 +52,9 @@ impl Estado {
             angulo: 0,
             indice_peca: 0,
             peca_atual: pecas[0],
+            nivel: 0,
+            pontuacao: 0,
+            linhas_limpas: 0,
             pecas,
             pecas_prox,
             grid: grid::Grid::default(),
@@ -117,7 +125,18 @@ impl Estado {
 
     fn trocar_peca_bruto(&mut self, peca: WrapperPeca, x: isize, y: isize) {
         self.grid.posicionar_peca(peca, x, y);
-        self.grid.limpar_completas();
+
+        let [linhas, pontos] = self.grid.limpar_completas();
+        self.pontuacao += pontos * (self.nivel + 1);
+
+        let meta = (self.nivel + 1) * LINHAS_PARA_PASSAR_NIVEL;
+
+        if (self.linhas_limpas + linhas) >= meta && self.linhas_limpas < meta && linhas != 0 {
+            self.nivel += 1;
+        }
+
+        self.linhas_limpas += linhas;
+
         self.alterar_peca();
         self.trocou = false;
     }

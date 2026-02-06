@@ -27,6 +27,8 @@ enum Comando {
 }
 
 const TAMANHO_BOLSO: usize = 6 * 2;
+const TAXA_DIMINUICAO_DELAY: f32 = 0.9;
+const DELAY_MINIMO_TICK: Duration = Duration::from_millis(1000);
 
 fn main() {
     let tema = match Tema::carregar("./temas/padrao.toml") {
@@ -45,8 +47,9 @@ fn main() {
 
     let (mut renderizador, offset_h, offset_v) = preparar_renderizador(&tema);
 
-    let mut delay_tick = 400;
-    let delay_render = 25;
+    let mut ultimo_nivel = 0;
+    let mut delay_tick = Duration::from_millis(1000);
+    let delay_render = Duration::from_millis(25);
 
     let mut ultimo_tick = Instant::now();
     let mut ultimo_render = Instant::now();
@@ -64,15 +67,30 @@ fn main() {
             None => (),
         }
 
-        if ultimo_tick.elapsed() >= Duration::from_millis(delay_tick) {
+        if ultimo_tick.elapsed() >= delay_tick {
             ultimo_tick = Instant::now();
             estado.tick();
+
+            if estado.nivel != ultimo_nivel {
+                ultimo_nivel = estado.nivel;
+                delay_tick = delay_tick
+                    .mul_f32(TAXA_DIMINUICAO_DELAY)
+                    .max(DELAY_MINIMO_TICK);
+            }
         }
 
-        if ultimo_render.elapsed() >= Duration::from_millis(delay_render) {
+        if ultimo_render.elapsed() >= delay_render {
             ultimo_render = Instant::now();
 
             renderizador.desenhar(estado, TAMANHO_BOLSO as isize + 2, 0, false, &tema);
+            renderizador.escrever(&format!("nível: {}", estado.nivel), 0, ALTURA_GRID - 8);
+            renderizador.escrever(
+                &format!("limpas: {}", estado.linhas_limpas),
+                0,
+                ALTURA_GRID - 7,
+            );
+            renderizador.escrever("pontuação:", 0, ALTURA_GRID - 6);
+            renderizador.escrever(&estado.pontuacao.to_string(), 0, ALTURA_GRID - 5);
 
             let mut conteiner_bolso = caixa(TAMANHO_BOLSO, TAMANHO_BOLSO / 2, &tema);
             conteiner_bolso.escrever(" guardada ", 1, 0);

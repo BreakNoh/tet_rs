@@ -96,12 +96,25 @@ impl Grid {
         Colisao::Nada
     }
 
-    pub fn limpar_completas(&mut self) {
+    pub fn limpar_completas(&mut self) -> [u32; 2] {
         let saltos = self.checar_linhas();
+
+        let linhas = saltos.iter().cloned().max().unwrap_or(0);
 
         if saltos.iter().any(|v| *v != 0) {
             self.derrubar_linhas(saltos);
         }
+
+        let pontos = match linhas {
+            0 => 0,
+            1 => 100,
+            2 => 300,
+            3 => 500,
+            4 => 1200,
+            _ => 0,
+        };
+
+        [linhas as u32, pontos]
     }
 
     fn checar_linhas(&self) -> [usize; ALTURA_GRID] {
