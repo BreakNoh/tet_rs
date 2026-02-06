@@ -74,16 +74,16 @@ fn main() {
 
             renderizador.desenhar(estado, TAMANHO_BOLSO as isize + 2, 0, false, &tema);
 
-            renderizador.desenhar(
-                caixa(TAMANHO_BOLSO, TAMANHO_BOLSO / 2, &tema),
-                0,
-                1,
-                false,
-                &tema,
-            );
+            let mut conteiner_bolso = caixa(TAMANHO_BOLSO, TAMANHO_BOLSO / 2, &tema);
+            conteiner_bolso.escrever(" guardada ", 1, 0);
+
+            renderizador.desenhar(conteiner_bolso, 0, 1, false, &tema);
+
+            let mut conteiner_prox = caixa(TAMANHO_BOLSO, TAMANHO_BOLSO / 2, &tema);
+            conteiner_prox.escrever(" seguinte ", 1, 0);
 
             renderizador.desenhar(
-                caixa(TAMANHO_BOLSO, TAMANHO_BOLSO / 2, &tema),
+                conteiner_prox,
                 (LARGURA_GRID * 2 + 4 + TAMANHO_BOLSO) as isize,
                 1,
                 false,
