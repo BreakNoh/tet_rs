@@ -126,6 +126,11 @@ impl Estado {
     fn trocar_peca_bruto(&mut self, peca: WrapperPeca, x: isize, y: isize) {
         self.grid.posicionar_peca(peca, x, y);
 
+        if self.checar_se_perdeu() {
+            self.perder();
+            return;
+        }
+
         let [linhas, pontos] = self.grid.limpar_completas();
         self.pontuacao += pontos * (self.nivel + 1);
 
@@ -146,6 +151,20 @@ impl Estado {
             self.trocar_peca();
         }
     }
+
+    pub fn checar_se_perdeu(&self) -> bool {
+        for linha in self.grid.posicoes.iter().take(2) {
+            if linha.iter().any(|bloco| *bloco != 0) {
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn perder(&mut self) {
+        *self = Estado::new();
+    }
+
     fn atualizar_fantasma(&mut self) {
         let mut dy = self.y;
 
