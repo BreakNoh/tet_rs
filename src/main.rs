@@ -84,8 +84,10 @@ fn main() {
 
             renderizador.desenhar(estado, TAMANHO_BOLSO as isize + 2, 0, false, &tema);
             renderizador.escrever(&format!("nível: {}", estado.nivel), 0, ALTURA_GRID - 8);
+
             renderizador.escrever("linhas:", 0, ALTURA_GRID - 7);
             renderizador.escrever(&estado.linhas_limpas.to_string(), 0, ALTURA_GRID - 6);
+
             renderizador.escrever("pontuação:", 0, ALTURA_GRID - 5);
             renderizador.escrever(&estado.pontuacao.to_string(), 0, ALTURA_GRID - 4);
 

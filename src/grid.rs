@@ -7,11 +7,16 @@ use crate::{
 pub const ALTURA_GRID: usize = 20;
 pub const LARGURA_GRID: usize = 10;
 
+type DirecaoColisao = bool;
+pub const DIREITA: DirecaoColisao = true;
+pub const ESQUERDA: DirecaoColisao = false;
+
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
 pub enum Colisao {
     #[default]
     Nada,
-    Parede,
+    Parede(DirecaoColisao),
+    Leteral(DirecaoColisao),
     Base,
 }
 
@@ -72,22 +77,24 @@ impl Grid {
         for dy in 0..n {
             for dx in 0..n {
                 let bloco_peca = peca.ler_bloco(dx as usize, dy as usize);
+                let dir: DirecaoColisao = if dx >= n / 2 { DIREITA } else { ESQUERDA };
 
                 if bloco_peca != 0 {
                     if !esta_dentro_y(y + dy) {
                         return Colisao::Base;
                     }
                     if !esta_dentro_x(x + dx) {
-                        return Colisao::Parede;
+                        return Colisao::Parede(dir);
                     }
 
                     let x = (x + dx) as usize;
                     let y = (y + dy) as usize;
 
                     if self.posicoes[y][x] != 0 {
-                        return match horizontal {
-                            true => Colisao::Parede,
-                            false => Colisao::Base,
+                        return if horizontal {
+                            Colisao::Leteral(dir)
+                        } else {
+                            Colisao::Base
                         };
                     }
                 }

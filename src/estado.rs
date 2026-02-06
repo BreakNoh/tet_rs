@@ -179,31 +179,56 @@ impl Estado {
     }
 
     pub fn mover(&mut self, dir_x: isize) {
-        if self
+        let colisao = self
             .grid
-            .checar_colisao(self.peca_atual(), self.x + dir_x, self.y, true)
-            != Colisao::Parede
-        {
-            self.x += dir_x;
-            self.atualizar_fantasma();
+            .checar_colisao(self.peca_atual(), self.x + dir_x, self.y, true);
+
+        match colisao {
+            Colisao::Parede(_) | Colisao::Leteral(_) => (),
+            Colisao::Nada | Colisao::Base => {
+                self.x += dir_x;
+                self.atualizar_fantasma();
+            }
         }
     }
 
     pub fn girar(&mut self, sentido: isize) {
-        match sentido {
-            s if s > 0 => {
-                self.angulo = (self.angulo + 1) % NUMERO_ANGULOS;
-                self.atualizar_fantasma();
+        let angulo_novo = match sentido {
+            s if s > 0 => (self.angulo + 1) % NUMERO_ANGULOS,
+            s if s < 0 && self.angulo == 0 => NUMERO_ANGULOS - 1,
+            s if s < 0 && self.angulo > 0 => self.angulo - 1,
+            _ => self.angulo,
+        };
+
+        let mut posicoes_teste = [[0, 0], [1, 0], [-1, 0], [0, -1]];
+        if self.peca_atual.id() == 7 {
+            // I
+            posicoes_teste[2] = [-2, 0];
+            posicoes_teste[1] = [2, 0];
+        }
+
+        let mut pos_valida = None;
+
+        for [x, y] in posicoes_teste {
+            let peca_rodada = self.peca_atual.rotacionar(ANGULOS[angulo_novo]);
+            let colisao = self
+                .grid
+                .checar_colisao(peca_rodada, self.x + x, self.y + y, true);
+
+            match colisao {
+                Colisao::Nada => {
+                    pos_valida = Some([self.x + x, self.y + y]);
+                    break;
+                }
+                _ => (),
             }
-            s if s < 0 => {
-                self.angulo = if self.angulo == 0 {
-                    NUMERO_ANGULOS - 1
-                } else {
-                    self.angulo - 1
-                };
-                self.atualizar_fantasma();
-            }
-            _ => (),
+        }
+
+        if let Some([novo_x, novo_y]) = pos_valida {
+            self.x = novo_x;
+            self.y = novo_y;
+            self.angulo = angulo_novo;
+            self.atualizar_fantasma();
         }
     }
 
