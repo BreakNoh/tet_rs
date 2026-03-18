@@ -20,9 +20,11 @@ pub enum Colisao {
     Base,
 }
 
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Grid {
-    pub posicoes: [[u8; LARGURA_GRID]; ALTURA_GRID],
+    pub altura: usize,
+    pub largura: usize,
+    pub posicoes: Vec<Vec<u8>>,
 }
 
 fn esta_dentro_x(x: isize) -> bool {
@@ -36,82 +38,135 @@ impl Grid {
     pub const ALTURA_GRID: usize = 20;
     pub const LARGURA_GRID: usize = 10;
 
-    pub fn _posicionar_peca(
-        &mut self,
-        pos: (isize, isize),
-        peca: Pecas,
-        rot: 
-    ){}
+    pub fn posicionar_peca(&mut self, peca: Peca, x: isize, y: isize) {
+        let n = peca.tamanho as isize;
 
-    pub fn posicionar_peca_forcado(
-        &mut self,
-        peca: WrapperPeca,
-        x: isize,
-        y: isize,
-        valor_forcado: Option<u8>,
-    ) {
-        let n = peca.tamanho() as isize;
+        for i in 0..n {
+            for j in 0..n {
+                let gy = y + i;
+                let gx = x + j;
 
-        for dy in 0..n {
-            if !esta_dentro_y(y + dy) {
-                continue;
-            }
-            for dx in 0..n {
-                if !esta_dentro_x(x + dx) {
+                if (gx < 0 || gx >= self.largura as isize) || (gy < 0 || gy >= self.altura as isize)
+                {
                     continue;
                 }
-                let bloco_peca = peca.ler_bloco(dx as usize, dy as usize);
 
-                if bloco_peca != 0 {
-                    let x = (x + dx) as usize;
-                    let y = (y + dy) as usize;
-                    self.posicoes[y][x] = valor_forcado.unwrap_or(peca.id());
+                let gy = gy as usize;
+                let gx = gx as usize;
+
+                if peca.bloco_em(j as usize, i as usize) {
+                    self.posicoes[gy][gx] = peca.variante as u8;
                 }
             }
         }
     }
 
-    pub fn posicionar_peca(&mut self, peca: WrapperPeca, x: isize, y: isize) {
-        self.posicionar_peca_forcado(peca, x, y, None);
+    fn fora_limites(&self, x: isize, y: isize) -> bool {
+        (x < 0 || x >= self.largura as isize) || (y < 0 || y >= self.altura as isize)
     }
 
-    pub fn checar_colisao(
-        &self,
-        peca: WrapperPeca,
-        x: isize,
-        y: isize,
-        horizontal: bool,
-    ) -> Colisao {
-        let n = peca.tamanho() as isize;
+    fn posicao_ocupada(&self, x: isize, y: isize) -> bool {
+        self.posicoes[y as usize][x as usize] != 0
+    }
 
-        for dy in 0..n {
-            for dx in 0..n {
-                let bloco_peca = peca.ler_bloco(dx as usize, dy as usize);
-                let dir: DirecaoColisao = if dx >= n / 2 { DIREITA } else { ESQUERDA };
+    pub fn peca_colide(&self, peca: Peca, ori: (isize, isize), dir: (isize, isize)) -> bool {
+        let n = peca.tamanho as isize;
 
-                if bloco_peca != 0 {
-                    if !esta_dentro_y(y + dy) {
-                        return Colisao::Base;
-                    }
-                    if !esta_dentro_x(x + dx) {
-                        return Colisao::Parede(dir);
-                    }
+        let (x, y) = ori;
+        let (dx, dy) = dir;
+        let (fx, fy) = (x + dx, y + dy);
 
-                    let x = (x + dx) as usize;
-                    let y = (y + dy) as usize;
+        for i in 0..n {
+            for j in 0..n {
+                if !peca.bloco_em(j as usize, i as usize) {
+                    continue;
+                }
 
-                    if self.posicoes[y][x] != 0 {
-                        return if horizontal {
-                            Colisao::Leteral(dir)
-                        } else {
-                            Colisao::Base
-                        };
-                    }
+                let gx = fx + j;
+                let gy = fy + i;
+
+                if self.fora_limites(gx, gy) {
+                    return true;
+                }
+
+                if self.posicao_ocupada(gx, gy) {
+                    return true;
                 }
             }
         }
-        Colisao::Nada
+        false
     }
+
+    // pub fn _posicionar_peca_forcado(
+    //     &mut self,
+    //     peca: WrapperPeca,
+    //     x: isize,
+    //     y: isize,
+    //     valor_forcado: Option<u8>,
+    // ) {
+    //     let n = peca.tamanho() as isize;
+    //
+    //     for dy in 0..n {
+    //         if !esta_dentro_y(y + dy) {
+    //             continue;
+    //         }
+    //         for dx in 0..n {
+    //             if !esta_dentro_x(x + dx) {
+    //                 continue;
+    //             }
+    //             let bloco_peca = peca.ler_bloco(dx as usize, dy as usize);
+    //
+    //             if bloco_peca != 0 {
+    //                 let x = (x + dx) as usize;
+    //                 let y = (y + dy) as usize;
+    //                 self.posicoes[y][x] = valor_forcado.unwrap_or(peca.id());
+    //             }
+    //         }
+    //     }
+    // }
+    //
+    // pub fn _posicionar_peca(&mut self, peca: WrapperPeca, x: isize, y: isize) {
+    //     self.posicionar_peca_forcado(peca, x, y, None);
+    // }
+    //
+
+    // pub fn checar_colisao(
+    //     &self,
+    //     peca: WrapperPeca,
+    //     x: isize,
+    //     y: isize,
+    //     horizontal: bool,
+    // ) -> Colisao {
+    //     let n = peca.tamanho() as isize;
+    //
+    //     for dy in 0..n {
+    //         for dx in 0..n {
+    //             let bloco_peca = peca.ler_bloco(dx as usize, dy as usize);
+    //             let dir: DirecaoColisao = if dx >= n / 2 { DIREITA } else { ESQUERDA };
+    //
+    //             if bloco_peca != 0 {
+    //                 if !esta_dentro_y(y + dy) {
+    //                     return Colisao::Base;
+    //                 }
+    //                 if !esta_dentro_x(x + dx) {
+    //                     return Colisao::Parede(dir);
+    //                 }
+    //
+    //                 let x = (x + dx) as usize;
+    //                 let y = (y + dy) as usize;
+    //
+    //                 if self.posicoes[y][x] != 0 {
+    //                     return if horizontal {
+    //                         Colisao::Leteral(dir)
+    //                     } else {
+    //                         Colisao::Base
+    //                     };
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     Colisao::Nada
+    // }
 
     pub fn limpar_completas(&mut self) -> [u32; 2] {
         let saltos = self.checar_linhas();
@@ -134,8 +189,8 @@ impl Grid {
         [linhas as u32, pontos]
     }
 
-    fn checar_linhas(&self) -> [usize; ALTURA_GRID] {
-        let mut movimento = [0; ALTURA_GRID];
+    fn checar_linhas(&self) -> Vec<usize> {
+        let mut movimento = vec![0; self.altura];
         let mut salto = 0;
 
         for (i, linha) in self.posicoes.iter().enumerate().rev() {

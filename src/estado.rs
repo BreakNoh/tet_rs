@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 
 use crate::{
     grid::{self, Colisao, Grid},
-    pecas::{self, ANGULOS, WrapperPeca},
+    // pecas::{self, ANGULOS, WrapperPeca},
     tema::Tema,
     visual::Desenhavel,
 };

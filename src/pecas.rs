@@ -13,7 +13,8 @@ enum Rotacao {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Peca {
-    pub variante: String,
+    pub variante: char,
+    pub tamanho: usize,
     rotacao: Rotacao,
     blocos: HashMap<Rotacao, Matiz>, // cada rotação é guardada e só é acessada
 }
@@ -91,17 +92,23 @@ fn gerar_rotacoes(mat: Matiz) -> HashMap<Rotacao, Matiz> {
     ])
 }
 
-fn carregar_pecas() -> Option<Vec<Peca>> {
+fn carregar_pecas() -> Option<HashMap<char, Peca>> {
     let raw = fs::read_to_string("../temas/pecas.toml").ok()?;
-    let pecas_raw: HashMap<String, Vec<String>> = toml::from_str(&raw).ok()?;
+    let pecas_raw: HashMap<char, Vec<String>> = toml::from_str(&raw).ok()?;
 
-    let pecas: Vec<Peca> = pecas_raw
+    let pecas: HashMap<char, Peca> = pecas_raw
         .into_iter()
         .filter_map(|(k, v)| {
-            str_pra_mat(v).map(|mat| Peca {
-                variante: k,
-                rotacao: Rotacao::Leste,
-                blocos: gerar_rotacoes(mat),
+            str_pra_mat(v).map(|mat| {
+                (
+                    k.clone(),
+                    Peca {
+                        variante: k,
+                        tamanho: mat.len(),
+                        rotacao: Rotacao::Leste,
+                        blocos: gerar_rotacoes(mat),
+                    },
+                )
             })
         })
         .collect();
