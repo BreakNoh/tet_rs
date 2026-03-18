@@ -1,3 +1,4 @@
+mod grid;
 use std::io::{Stdout, Write};
 
 use crate::{

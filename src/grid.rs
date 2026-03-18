@@ -33,6 +33,9 @@ fn esta_dentro_y(y: isize) -> bool {
 }
 
 impl Grid {
+    pub const ALTURA_GRID: usize = 20;
+    pub const LARGURA_GRID: usize = 10;
+
     pub fn posicionar_peca_forcado(
         &mut self,
         peca: WrapperPeca,

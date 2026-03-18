@@ -1,15 +1,15 @@
 [borda]
 padrao = "X"
 cor = ["Vazio", "Branco"]
-base = "═"
-parede = "║"
-canto_sup_esq = "╔"
-canto_sup_dir = "╗"
-canto_inf_esq = "╚"
-canto_inf_dir = "╝"
+base = "-"
+parede = "|"
+canto_sup_esq = "*"
+canto_sup_dir = "*"
+canto_inf_esq = "*"
+canto_inf_dir = "*"
 
 [chars]
-padrao = ["🬴", "🬸"]
+padrao = ["[", "]"]
 fantasma = [" ", " "]
 
 [cores]
