@@ -1,5 +1,5 @@
 use crate::{
-    pecas::WrapperPeca,
+    pecas::Peca,
     tema::Tema,
     visual::{Desenhavel, Frame, bloco},
 };
@@ -35,6 +35,13 @@ fn esta_dentro_y(y: isize) -> bool {
 impl Grid {
     pub const ALTURA_GRID: usize = 20;
     pub const LARGURA_GRID: usize = 10;
+
+    pub fn _posicionar_peca(
+        &mut self,
+        pos: (isize, isize),
+        peca: Pecas,
+        rot: 
+    ){}
 
     pub fn posicionar_peca_forcado(
         &mut self,
