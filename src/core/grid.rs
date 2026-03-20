@@ -1,21 +1,13 @@
 use super::*;
 
-const TAM_MAX_GRID: usize = 50;
-pub type Posicoes = [[Bloco; TAM_MAX_GRID]; TAM_MAX_GRID];
-
-pub struct Grid {
-    posicoes: Posicoes,
-    largura: usize,
-    altura: usize,
-}
-
-impl Grid {
-    fn posicao_ocupada(&self, pos: IVec2) -> bool {
-        self.posicoes[pos.y as usize][pos.x as usize] != 0
-    }
+pub trait GridBlocos {
+    fn dimensoes(&self) -> IVec2;
+    fn posicao_ocupada(&self, pos: IVec2) -> bool;
 
     fn fora_dos_limites(&self, pos: IVec2) -> bool {
-        pos.x < 0 || pos.x >= self.largura as i32 || pos.y < 0 || pos.y >= self.altura as i32
+        let dim = self.dimensoes();
+
+        pos.x < 0 || pos.x >= dim.x || pos.y < 0 || pos.y >= dim.y
     }
 
     fn pode_posicionar(&self, blocos: &Blocos, tam: usize, pos: IVec2) -> bool {
@@ -36,7 +28,9 @@ impl Grid {
         true
     }
 
-    fn posicionar(&mut self, blocos: &Blocos, tam: usize, pos: IVec2) {
+    fn posicionar_bloco(&mut self, bloco: Bloco, pos: IVec2);
+
+    fn posicionar_blocos(&mut self, blocos: &Blocos, tam: usize, pos: IVec2) {
         for (dy, linha) in blocos.iter().enumerate().take(tam) {
             for (dx, bloco) in linha.iter().take(tam).enumerate().filter(|(_, b)| **b != 0) {
                 let pos_checada = pos + IVec2::new(dx as i32, dy as i32);
