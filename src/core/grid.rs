@@ -1,9 +1,10 @@
 use super::*;
 
 const TAM_MAX_GRID: usize = 50;
+pub type Posicoes = [[Bloco; TAM_MAX_GRID]; TAM_MAX_GRID];
 
-pub(super) struct Grid {
-    posicoes: [[Bloco; TAM_MAX_GRID]; TAM_MAX_GRID],
+pub struct Grid {
+    posicoes: Posicoes,
     largura: usize,
     altura: usize,
 }
