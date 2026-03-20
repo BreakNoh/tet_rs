@@ -10,9 +10,14 @@ pub trait GridBlocos {
         pos.x < 0 || pos.x >= dim.x || pos.y < 0 || pos.y >= dim.y
     }
 
-    fn pode_posicionar(&self, blocos: &Blocos, tam: usize, pos: IVec2) -> bool {
-        for (dy, linha) in blocos.iter().enumerate().take(tam) {
-            for (dx, _) in linha.iter().take(tam).enumerate().filter(|(_, b)| **b != 0) {
+    fn pode_posicionar(&self, blocos: Blocos, tam: usize, pos: IVec2) -> bool {
+        for (dy, linha) in blocos.into_iter().enumerate().take(tam) {
+            for (dx, _) in linha
+                .into_iter()
+                .take(tam)
+                .enumerate()
+                .filter(|(_, b)| *b != 0)
+            {
                 // só itera pelas posições com bloco
                 let pos_checada = pos + IVec2::new(dx as i32, dy as i32);
 
@@ -30,16 +35,21 @@ pub trait GridBlocos {
 
     fn posicionar_bloco(&mut self, bloco: Bloco, pos: IVec2);
 
-    fn posicionar_blocos(&mut self, blocos: &Blocos, tam: usize, pos: IVec2) {
-        for (dy, linha) in blocos.iter().enumerate().take(tam) {
-            for (dx, bloco) in linha.iter().take(tam).enumerate().filter(|(_, b)| **b != 0) {
+    fn posicionar_blocos(&mut self, blocos: Blocos, tam: usize, pos: IVec2) {
+        for (dy, linha) in blocos.into_iter().enumerate().take(tam) {
+            for (dx, bloco) in linha
+                .into_iter()
+                .take(tam)
+                .enumerate()
+                .filter(|(_, b)| *b != 0)
+            {
                 let pos_checada = pos + IVec2::new(dx as i32, dy as i32);
 
                 if self.fora_dos_limites(pos_checada) {
                     continue;
                 }
 
-                self.posicionar_bloco(*bloco, pos_checada);
+                self.posicionar_bloco(bloco, pos_checada);
             }
         }
     }
@@ -109,7 +119,7 @@ mod tests {
             esperado[1][i] = 1;
         }
 
-        grid.posicionar_blocos(&bloco, tam_bloco, IVec2::new(0, 0));
+        grid.posicionar_blocos(bloco, tam_bloco, IVec2::new(0, 0));
 
         assert_eq!(grid.posicoes, esperado)
     }
@@ -125,7 +135,7 @@ mod tests {
             bloco[1][i] = 1;
         });
 
-        let pode_posicionar = grid.pode_posicionar(&bloco, tam_bloco, IVec2::new(1, 1));
+        let pode_posicionar = grid.pode_posicionar(bloco, tam_bloco, IVec2::new(1, 1));
 
         assert!(!pode_posicionar)
     }
@@ -143,7 +153,7 @@ mod tests {
 
         grid.posicoes[1][1] = 2;
 
-        let pode_posicionar = grid.pode_posicionar(&bloco, tam_bloco, IVec2::new(0, 0));
+        let pode_posicionar = grid.pode_posicionar(bloco, tam_bloco, IVec2::new(0, 0));
 
         assert!(!pode_posicionar)
     }
@@ -159,7 +169,7 @@ mod tests {
             bloco[1][i] = 1;
         });
 
-        let pode_posicionar = grid.pode_posicionar(&bloco, tam_bloco, IVec2::new(0, 0));
+        let pode_posicionar = grid.pode_posicionar(bloco, tam_bloco, IVec2::new(0, 0));
 
         assert!(pode_posicionar)
     }
@@ -177,7 +187,7 @@ mod tests {
 
         // grid.posicoes[1][1] = 2;
 
-        let pode_posicionar = grid.pode_posicionar(&bloco, tam_bloco, IVec2::new(-1, 0));
+        let pode_posicionar = grid.pode_posicionar(bloco, tam_bloco, IVec2::new(-1, 0));
 
         assert!(pode_posicionar)
     }
