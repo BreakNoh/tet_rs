@@ -120,3 +120,27 @@ impl<S: SRS + Copy> PecaBlocos<S> for Peca<S> {
         self.srs
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn gera_rotacoes_corretamente() {
+        let mut base = BLOCOS_BASE;
+        let mut esperados = [BLOCOS_BASE; 4];
+        let tam = 2;
+
+        base[0][0] = 1;
+        esperados[0][0][0] = 1; // leste
+        esperados[1][0][1] = 1; // sul
+        esperados[2][1][1] = 1; // oeste
+        esperados[3][1][0] = 1; // norte
+
+        let rotacoes = gerar_rotacoes(base, tam);
+
+        for (res, esp) in rotacoes.into_iter().zip(esperados.into_iter()) {
+            assert_eq!(res, esp);
+        }
+    }
+}
