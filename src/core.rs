@@ -1,6 +1,6 @@
-mod grid;
-mod peca;
-mod rotacao;
+pub mod grid;
+pub mod peca;
+pub mod rotacao;
 
 use glam::IVec2;
 use grid::*;

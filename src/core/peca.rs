@@ -1,3 +1,4 @@
+pub mod pecas;
 use super::*;
 
 const TAM_MAX_BLOCOS: usize = 4;
@@ -57,6 +58,33 @@ pub struct Peca<S: SRS + Copy> {
     tamanho: usize,
     rotacoes: [Blocos; 4], // sentido horario
     srs: S,
+}
+
+fn rot90(blocos: Blocos, tam: usize, vezes: usize) -> Blocos {
+    let mut blocos_rotacionados = blocos;
+
+    for _ in 0..(vezes % 4) {
+        let mut temp = BLOCOS_BASE;
+
+        for l in 0..tam {
+            for c in 0..tam {
+                temp[c][tam - 1 - l] = blocos_rotacionados[l][c];
+            }
+        }
+
+        blocos_rotacionados = temp;
+    }
+
+    blocos_rotacionados
+}
+
+fn gerar_rotacoes(blocos: Blocos, tam: usize) -> [Blocos; 4] {
+    [
+        blocos,
+        rot90(blocos, tam, 1),
+        rot90(blocos, tam, 2),
+        rot90(blocos, tam, 3),
+    ]
 }
 
 impl<S: SRS + Copy> PecaBlocos<S> for Peca<S> {

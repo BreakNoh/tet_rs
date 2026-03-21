@@ -2,10 +2,10 @@ use super::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Rotacao {
-    Leste = 0,
-    Sul = 1,
-    Oeste = 2,
-    Norte = 3,
+    Norte = 0,
+    Leste = 1,
+    Sul = 2,
+    Oeste = 3,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
