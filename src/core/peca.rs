@@ -1,13 +1,13 @@
 use super::*;
 
-const TAM_MAX_BLOCOS: usize = 5;
+const TAM_MAX_BLOCOS: usize = 4;
 
 pub type Bloco = u8;
 pub type Blocos = [[Bloco; TAM_MAX_BLOCOS]; TAM_MAX_BLOCOS];
 
 pub const BLOCOS_BASE: Blocos = [[0; TAM_MAX_BLOCOS]; TAM_MAX_BLOCOS];
 
-pub trait PecaBlocos {
+pub trait PecaBlocos<S: SRS + Copy> {
     fn tamanho(&self) -> usize;
 
     fn rotacao(&self) -> Rotacao;
@@ -17,14 +17,14 @@ pub trait PecaBlocos {
     fn set_posicao(&mut self, pos: IVec2);
 
     fn blocos_rotacao(&self, rot: Rotacao) -> Blocos;
-    fn teste_srs(&self, rot: Rotacao) -> &impl SRS;
+    fn srs(&self) -> S;
 
     fn blocos(&self) -> Blocos {
         self.blocos_rotacao(self.rotacao())
     }
 
     fn rotacionar_para(&mut self, rot: Rotacao, grid: &impl GridBlocos) {
-        let teste = self.teste_srs(rot);
+        let teste = self.srs();
         let blocos = self.blocos_rotacao(rot);
         let pos = self.posicao();
         let trans = (self.rotacao(), rot);
@@ -39,7 +39,7 @@ pub trait PecaBlocos {
     }
 
     fn pode_rotacionar(&self, rot: Rotacao, grid: &impl GridBlocos) -> bool {
-        let teste = self.teste_srs(rot);
+        let teste = self.srs();
         let blocos = self.blocos_rotacao(rot);
         let pos = self.posicao();
         let trans = (self.rotacao(), rot);
@@ -51,9 +51,44 @@ pub trait PecaBlocos {
     }
 }
 
-pub struct Peca {
+pub struct Peca<S: SRS + Copy> {
+    posicao: IVec2,
     rotacao: Rotacao,
     tamanho: usize,
     rotacoes: [Blocos; 4], // sentido horario
-    tabela_srs: (),
+    srs: S,
+}
+
+impl<S: SRS + Copy> PecaBlocos<S> for Peca<S> {
+    fn tamanho(&self) -> usize {
+        self.tamanho
+    }
+
+    fn rotacao(&self) -> Rotacao {
+        self.rotacao
+    }
+
+    fn set_rotacao(&mut self, rot: Rotacao) {
+        self.rotacao = rot
+    }
+
+    fn posicao(&self) -> IVec2 {
+        self.posicao
+    }
+
+    fn set_posicao(&mut self, pos: IVec2) {
+        self.posicao = pos
+    }
+
+    fn blocos_rotacao(&self, rot: Rotacao) -> Blocos {
+        if rot as usize >= 4 {
+            self.rotacoes[0]
+        } else {
+            self.rotacoes[rot as usize]
+        }
+    }
+
+    fn srs(&self) -> S {
+        self.srs
+    }
 }
