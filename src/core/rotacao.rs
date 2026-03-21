@@ -38,3 +38,12 @@ pub trait SRS {
         ResultadoSRS::Invalida
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SRSBasico;
+
+impl SRS for SRSBasico {
+    fn offsets(&self, _: (Rotacao, Rotacao)) -> Option<[IVec2; 5]> {
+        Some([IVec2::ZERO; 5])
+    }
+}
