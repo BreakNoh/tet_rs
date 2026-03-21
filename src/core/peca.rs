@@ -132,15 +132,33 @@ mod tests {
         let tam = 2;
 
         base[0][0] = 1;
-        esperados[0][0][0] = 1; // leste
-        esperados[1][0][1] = 1; // sul
-        esperados[2][1][1] = 1; // oeste
-        esperados[3][1][0] = 1; // norte
+        esperados[0][0][0] = 1; // norte
+        esperados[1][0][1] = 1; // leste
+        esperados[2][1][1] = 1; // sul
+        esperados[3][1][0] = 1; // oeste
 
         let rotacoes = gerar_rotacoes(base, tam);
 
         for (res, esp) in rotacoes.into_iter().zip(esperados.into_iter()) {
             assert_eq!(res, esp);
         }
+    }
+
+    #[test]
+    fn peca_rotaciona() {
+        let mut peca = pecas::t();
+        peca.set_posicao(IVec2::new(3, 5)); // area que a peça tem espaço para rodar sem problemas
+        let grid = Grid::new();
+
+        assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Norte));
+
+        peca.rotacionar_para(Rotacao::Leste, &grid);
+        assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Leste));
+
+        peca.rotacionar_para(Rotacao::Oeste, &grid);
+        assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Oeste));
+
+        peca.rotacionar_para(Rotacao::Sul, &grid);
+        assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Sul));
     }
 }

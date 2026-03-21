@@ -69,7 +69,7 @@ pub struct Grid {
 }
 
 impl Grid {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Grid {
             // largura,
             // altura,
