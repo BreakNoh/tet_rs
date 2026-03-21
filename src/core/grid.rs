@@ -56,24 +56,26 @@ pub trait GridBlocos {
 }
 
 const TAM_MAX_GRID: usize = 50;
+const LARGURA_GRID: usize = 10;
+const ALTURA_GRID: usize = 10;
 
-type Posicoes = [[Bloco; TAM_MAX_GRID]; TAM_MAX_GRID];
-const POSICOES_BASE: Posicoes = [[0; TAM_MAX_GRID]; TAM_MAX_GRID];
+type Posicoes = [[Bloco; LARGURA_GRID]; ALTURA_GRID];
+const POSICOES_BASE: Posicoes = [[0; LARGURA_GRID]; LARGURA_GRID];
 
 pub struct Grid {
     posicoes: Posicoes,
-    largura: usize,
-    altura: usize,
+    // largura: usize,
+    // altura: usize,
 }
 
 impl Grid {
     fn new(altura: usize, largura: usize) -> Option<Self> {
-        if altura > TAM_MAX_GRID || largura > TAM_MAX_GRID {
+        if altura > ALTURA_GRID || largura > LARGURA_GRID {
             None
         } else {
             Some(Grid {
-                largura,
-                altura,
+                // largura,
+                // altura,
                 posicoes: POSICOES_BASE,
             })
         }
@@ -83,9 +85,13 @@ impl Grid {
 impl GridBlocos for Grid {
     fn dimensoes(&self) -> IVec2 {
         IVec2 {
-            x: self.largura as i32,
-            y: self.altura as i32,
+            x: LARGURA_GRID as i32,
+            y: ALTURA_GRID as i32,
         }
+        // IVec2 {
+        //     x: self.largura as i32,
+        //     y: self.altura as i32,
+        // }
     }
     fn posicao_ocupada(&self, pos: IVec2) -> bool {
         if self.fora_dos_limites(pos) {
