@@ -161,4 +161,14 @@ mod tests {
         peca.rotacionar_para(Rotacao::Sul, &grid);
         assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Sul));
     }
+
+    #[test]
+    fn peca_nao_pode_rotacionar_se_srs_falhar() {
+        let mut peca = pecas::t();
+        peca.set_posicao(IVec2::new(8, 0)); // peca com a base colada na parede
+        peca.set_rotacao(Rotacao::Oeste); // ponta virada para a esquerda
+        let grid = Grid::new();
+
+        assert!(!peca.pode_rotacionar(Rotacao::Leste, &grid)) // ponta fora do grid
+    }
 }
