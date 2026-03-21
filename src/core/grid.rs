@@ -69,15 +69,11 @@ pub struct Grid {
 }
 
 impl Grid {
-    fn new(altura: usize, largura: usize) -> Option<Self> {
-        if altura > ALTURA_GRID || largura > LARGURA_GRID {
-            None
-        } else {
-            Some(Grid {
-                // largura,
-                // altura,
-                posicoes: POSICOES_BASE,
-            })
+    fn new() -> Self {
+        Grid {
+            // largura,
+            // altura,
+            posicoes: POSICOES_BASE,
         }
     }
 }
@@ -114,7 +110,7 @@ mod tests {
 
     #[test]
     fn posicionar_blocos_dentro_grid() {
-        let mut grid = Grid::new(3, 3).expect("grid deveria ter iniciado");
+        let mut grid = Grid::new();
         let mut esperado = POSICOES_BASE;
         let mut bloco = BLOCOS_BASE;
         let tam_bloco = 3;
@@ -132,7 +128,7 @@ mod tests {
 
     #[test]
     fn nao_deixar_posicionar_fora_do_grid() {
-        let grid = Grid::new(3, 3).expect("grid deveria ter iniciado");
+        let grid = Grid::new();
         let mut bloco = BLOCOS_BASE;
         let tam_bloco = 3;
 
@@ -141,14 +137,14 @@ mod tests {
             bloco[1][i] = 1;
         });
 
-        let pode_posicionar = grid.pode_posicionar(bloco, tam_bloco, IVec2::new(1, 1));
+        let pode_posicionar = grid.pode_posicionar(bloco, tam_bloco, IVec2::new(10, 20));
 
         assert!(!pode_posicionar)
     }
 
     #[test]
     fn nao_deixar_posicionar_encima_de_bloco() {
-        let mut grid = Grid::new(3, 3).expect("grid deveria ter iniciado");
+        let mut grid = Grid::new();
         let mut bloco = BLOCOS_BASE;
         let tam_bloco = 3;
 
@@ -166,7 +162,7 @@ mod tests {
 
     #[test]
     fn deixar_posicionar() {
-        let grid = Grid::new(3, 3).expect("grid deveria ter iniciado");
+        let grid = Grid::new();
         let mut bloco = BLOCOS_BASE;
         let tam_bloco = 3;
 
@@ -182,7 +178,7 @@ mod tests {
 
     #[test]
     fn deixar_posicionar_com_padding() {
-        let grid = Grid::new(3, 3).expect("grid deveria ter iniciado");
+        let grid = Grid::new();
         let mut bloco = BLOCOS_BASE;
         let tam_bloco = 4;
 
