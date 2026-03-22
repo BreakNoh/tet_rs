@@ -1,8 +1,8 @@
 use glam::IVec2;
 use ratatui::prelude::*;
 
-mod gerenciador;
-mod grid;
+pub mod gerenciador;
+pub mod grid;
 
 #[cfg(test)]
 mod tests {
@@ -10,7 +10,7 @@ mod tests {
 
     use crate::core::{
         bag::Bag,
-        gerenciador::{GERENCIADOR_MOCK, GERENCIADOR_MOCK_BAG, GerenciadorJogo},
+        gerenciador::{GERENCIADOR_MOCK, GERENCIADOR_MOCK_BAG, Gerenciador},
         grid::{Grid, GridBlocos},
         peca::{PecaBlocos, pecas},
         rotacao::Rotacao,

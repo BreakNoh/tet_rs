@@ -1,6 +1,6 @@
 use crate::core::{
     bag::Bag,
-    gerenciador::GerenciadorJogo,
+    gerenciador::Gerenciador,
     grid::Grid,
     peca::{Peca, PecaBlocos},
     rotacao::SRSBasico,
@@ -8,7 +8,7 @@ use crate::core::{
 
 use super::*;
 
-impl Widget for &GerenciadorJogo<Grid, Bag<Peca<SRSBasico>>, Peca<SRSBasico>, SRSBasico> {
+impl Widget for &Gerenciador<Bag> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         self.grid.render(area, buf);
 
