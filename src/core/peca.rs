@@ -50,6 +50,10 @@ pub trait PecaBlocos<S: SRS + Copy> {
             ResultadoSRS::Valida(_)
         )
     }
+
+    fn pode_mover_para(&self, pos: IVec2, grid: &impl GridBlocos) -> bool {
+        grid.pode_posicionar(self.blocos(), self.tamanho(), pos)
+    }
 }
 
 pub struct Peca<S: SRS + Copy> {
