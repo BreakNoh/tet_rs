@@ -16,6 +16,10 @@ pub trait GridBlocos {
         self.posicionar_blocos(peca.blocos(), peca.tamanho(), peca.posicao());
     }
 
+    fn posicionar_peca_em<S: SRS + Copy>(&mut self, peca: &impl PecaBlocos<S>, pos: IVec2) {
+        self.posicionar_blocos(peca.blocos(), peca.tamanho(), pos);
+    }
+
     fn fora_dos_limites(&self, pos: IVec2) -> bool {
         let dim = self.dimensoes();
 
