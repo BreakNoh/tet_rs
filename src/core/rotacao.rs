@@ -8,6 +8,33 @@ pub enum Rotacao {
     Oeste = 3,
 }
 
+impl Rotacao {
+    pub fn rot90hor(&self) -> Self {
+        match self {
+            Rotacao::Norte => Rotacao::Leste,
+            Rotacao::Leste => Rotacao::Sul,
+            Rotacao::Sul => Rotacao::Oeste,
+            Rotacao::Oeste => Rotacao::Norte,
+        }
+    }
+    pub fn rot90ant(&self) -> Self {
+        match self {
+            Rotacao::Norte => Rotacao::Oeste,
+            Rotacao::Oeste => Rotacao::Sul,
+            Rotacao::Sul => Rotacao::Leste,
+            Rotacao::Leste => Rotacao::Norte,
+        }
+    }
+    pub fn rot180(&self) -> Self {
+        match self {
+            Rotacao::Norte => Rotacao::Sul,
+            Rotacao::Sul => Rotacao::Norte,
+            Rotacao::Oeste => Rotacao::Leste,
+            Rotacao::Leste => Rotacao::Oeste,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ResultadoSRS {
     Valida(IVec2),
