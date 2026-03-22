@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use rand::seq::SliceRandom;
 
 use super::*;
@@ -20,26 +18,52 @@ pub trait BagPecas<S: SRS + Copy, P: PecaBlocos<S> + Clone> {
     fn recarregar(&mut self);
 }
 
-pub struct Bag<P> {
-    pub pecas_possiveis: Vec<P>,
-    pub pecas: VecDeque<P>,
+#[derive(Debug)]
+pub struct Bag {
+    pub pecas_possiveis: Vec<Peca>,
+    pub pecas: Vec<Peca>,
 }
 
-impl<S: SRS + Copy, P: PecaBlocos<S> + Clone> BagPecas<S, P> for Bag<P> {
+impl Bag {
+    pub fn new() -> Self {
+        let mut bag = Bag {
+            pecas_possiveis: vec![
+                pecas::i(),
+                pecas::o(),
+                pecas::j(),
+                pecas::l(),
+                pecas::s(),
+                pecas::z(),
+                pecas::t(),
+            ],
+            pecas: vec![],
+        };
+
+        bag.recarregar();
+
+        bag
+    }
+}
+
+impl Default for Bag {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl BagPecas<SRSBasico, Peca> for Bag {
     fn tamanho(&self) -> usize {
         self.pecas.len()
     }
 
-    fn proxima_peca(&mut self) -> P {
+    fn proxima_peca(&mut self) -> Peca {
         if self.pecas.is_empty() {
             self.recarregar();
         }
-        self.pecas
-            .pop_front()
-            .expect("Bag deveria ter uma peca pelo menos, .recarregar() falhou")
+        self.pecas.remove(0)
     }
 
-    fn espiar_enesima(&self, n: usize) -> &P {
+    fn espiar_enesima(&self, n: usize) -> &Peca {
         &self.pecas[n]
     }
 
@@ -53,23 +77,23 @@ impl<S: SRS + Copy, P: PecaBlocos<S> + Clone> BagPecas<S, P> for Bag<P> {
 
 #[cfg(test)]
 pub struct BagTeste {
-    pub fila: Vec<Peca<SRSBasico>>,
+    pub fila: Vec<Peca>,
 }
 
 #[cfg(test)]
-impl BagPecas<SRSBasico, Peca<SRSBasico>> for BagTeste {
+impl BagPecas<SRSBasico, Peca> for BagTeste {
     fn tamanho(&self) -> usize {
         self.fila.len()
     }
 
-    fn proxima_peca(&mut self) -> Peca<SRSBasico> {
+    fn proxima_peca(&mut self) -> Peca {
         if self.fila.is_empty() {
             self.recarregar();
         }
         self.fila.remove(0)
     }
 
-    fn espiar_enesima(&self, n: usize) -> &Peca<SRSBasico> {
+    fn espiar_enesima(&self, n: usize) -> &Peca {
         &self.fila[n]
     }
 

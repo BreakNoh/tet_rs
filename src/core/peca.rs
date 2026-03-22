@@ -80,12 +80,12 @@ pub trait PecaBlocos<S: SRS + Copy> {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Peca<S: SRS + Copy> {
+pub struct Peca {
     posicao: IVec2,
     rotacao: Rotacao,
     tamanho: usize,
     rotacoes: [Blocos; 4], // sentido horario
-    srs: S,
+    srs: SRSBasico,
 }
 
 pub const fn rot90(blocos: Blocos, tam: usize, vezes: usize) -> Blocos {
@@ -122,7 +122,7 @@ pub const fn gerar_rotacoes(blocos: Blocos, tam: usize) -> [Blocos; 4] {
     ]
 }
 
-impl<S: SRS + Copy> PecaBlocos<S> for Peca<S> {
+impl PecaBlocos<SRSBasico> for Peca {
     fn tamanho(&self) -> usize {
         self.tamanho
     }
@@ -151,7 +151,7 @@ impl<S: SRS + Copy> PecaBlocos<S> for Peca<S> {
         }
     }
 
-    fn srs(&self) -> S {
+    fn srs(&self) -> SRSBasico {
         self.srs
     }
 }
