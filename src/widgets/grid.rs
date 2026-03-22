@@ -1,9 +1,26 @@
 use super::*;
 use crate::core::grid::{Grid, GridBlocos};
+use ratatui::widgets;
+
+const BORDA: symbols::border::Set = symbols::border::Set {
+    top_left: "|",
+    top_right: "|",
+    bottom_left: "+",
+    bottom_right: "+",
+    vertical_left: "|",
+    vertical_right: "|",
+    horizontal_top: " ",
+    horizontal_bottom: "-",
+};
 
 impl Widget for &Grid {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let IVec2 { x: lar, y: alt } = self.dimensoes();
+        let bloco = widgets::Block::bordered().border_set(BORDA);
+
+        (&bloco).render(area, buf);
+
+        let area = bloco.inner(area);
 
         for dy in 0..alt.min(area.height as i32) {
             for dx in 0..lar.min((area.width / 2) as i32) {

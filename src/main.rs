@@ -33,10 +33,10 @@ fn iniciar(
             ger.processar_input(event::read()?);
         }
 
-        if contagem_frames >= FRAMES_POR_TICK {
+        if !ger.pausado && contagem_frames >= FRAMES_POR_TICK {
             ger.tick();
             contagem_frames = 0;
-        } else {
+        } else if !ger.pausado {
             contagem_frames += 1;
         }
 
