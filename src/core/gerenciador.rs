@@ -117,22 +117,26 @@ impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
             match ev.code {
                 KeyCode::Char('c') if ctrl => self.parar = true,
                 KeyCode::Char('q') | KeyCode::Esc => self.parar = true,
-
-                KeyCode::Char('z') if !self.pausado => self.tentar_rotacionar(rot.rot90ant()),
-                KeyCode::Char('x') if !self.pausado => self.tentar_rotacionar(rot.rot90hor()),
-                KeyCode::Char('c') if !self.pausado => self.guardar_peca(),
-
                 KeyCode::Char('p') => self.pausado = !self.pausado,
-
-                KeyCode::Left if !self.pausado => self
-                    .peca_atual
-                    .tentar_mover_para(pos + IVec2::new(-1, 0), &self.grid),
-                KeyCode::Right if !self.pausado => self
-                    .peca_atual
-                    .tentar_mover_para(pos + IVec2::new(1, 0), &self.grid),
-                KeyCode::Up if !self.pausado => self.derrubar_direto(),
                 _ => (),
             };
+
+            if !self.pausado {
+                match ev.code {
+                    KeyCode::Char('z') => self.tentar_rotacionar(rot.rot90ant()),
+                    KeyCode::Char('x') => self.tentar_rotacionar(rot.rot90hor()),
+                    KeyCode::Char('c') => self.guardar_peca(),
+
+                    KeyCode::Left if !self.pausado => self
+                        .peca_atual
+                        .tentar_mover_para(pos + IVec2::new(-1, 0), &self.grid),
+                    KeyCode::Right if !self.pausado => self
+                        .peca_atual
+                        .tentar_mover_para(pos + IVec2::new(1, 0), &self.grid),
+                    KeyCode::Up if !self.pausado => self.derrubar_direto(),
+                    _ => (),
+                };
+            }
         }
     }
 }
