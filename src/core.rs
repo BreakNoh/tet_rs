@@ -9,5 +9,4 @@ use gerenciador::*;
 use glam::IVec2;
 use grid::*;
 use peca::*;
-use ratatui::prelude::*;
 use rotacao::*;
