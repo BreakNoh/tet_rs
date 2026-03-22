@@ -79,6 +79,7 @@ pub trait PecaBlocos<S: SRS + Copy> {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Peca<S: SRS + Copy> {
     posicao: IVec2,
     rotacao: Rotacao,
@@ -87,25 +88,32 @@ pub struct Peca<S: SRS + Copy> {
     srs: S,
 }
 
-fn rot90(blocos: Blocos, tam: usize, vezes: usize) -> Blocos {
+pub const fn rot90(blocos: Blocos, tam: usize, vezes: usize) -> Blocos {
     let mut blocos_rotacionados = blocos;
 
-    for _ in 0..(vezes % 4) {
-        let mut temp = BLOCOS_BASE;
+    let mut i = 0;
 
-        for l in 0..tam {
-            for c in 0..tam {
+    while i < vezes % 4 {
+        let mut temp = BLOCOS_BASE;
+        let mut l = 0;
+
+        while l < tam {
+            let mut c = 0;
+            while c < tam {
                 temp[c][tam - 1 - l] = blocos_rotacionados[l][c];
+                c += 1;
             }
+            l += 1;
         }
 
         blocos_rotacionados = temp;
+        i += 1;
     }
 
     blocos_rotacionados
 }
 
-fn gerar_rotacoes(blocos: Blocos, tam: usize) -> [Blocos; 4] {
+pub const fn gerar_rotacoes(blocos: Blocos, tam: usize) -> [Blocos; 4] {
     [
         blocos,
         rot90(blocos, tam, 1),

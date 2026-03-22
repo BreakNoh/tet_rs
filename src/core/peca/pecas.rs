@@ -1,6 +1,6 @@
 use super::*;
 
-pub fn t() -> Peca<SRSBasico> {
+pub const fn t() -> Peca<SRSBasico> {
     let mut blocos = BLOCOS_BASE;
     blocos[0][1] = 1;
     blocos[1][0] = 1;
@@ -16,7 +16,7 @@ pub fn t() -> Peca<SRSBasico> {
     }
 }
 
-pub fn l() -> Peca<SRSBasico> {
+pub const fn l() -> Peca<SRSBasico> {
     let mut blocos = BLOCOS_BASE;
     blocos[0][2] = 1;
     blocos[1][0] = 1;
@@ -32,7 +32,7 @@ pub fn l() -> Peca<SRSBasico> {
     }
 }
 
-pub fn j() -> Peca<SRSBasico> {
+pub const fn j() -> Peca<SRSBasico> {
     let mut blocos = BLOCOS_BASE;
     blocos[0][0] = 1;
     blocos[1][0] = 1;
@@ -48,7 +48,7 @@ pub fn j() -> Peca<SRSBasico> {
     }
 }
 
-pub fn s() -> Peca<SRSBasico> {
+pub const fn s() -> Peca<SRSBasico> {
     let mut blocos = BLOCOS_BASE;
     blocos[0][1] = 1;
     blocos[0][2] = 1;
@@ -64,7 +64,7 @@ pub fn s() -> Peca<SRSBasico> {
     }
 }
 
-pub fn z() -> Peca<SRSBasico> {
+pub const fn z() -> Peca<SRSBasico> {
     let mut blocos = BLOCOS_BASE;
     blocos[0][0] = 1;
     blocos[0][1] = 1;
@@ -80,7 +80,7 @@ pub fn z() -> Peca<SRSBasico> {
     }
 }
 
-pub fn o() -> Peca<SRSBasico> {
+pub const fn o() -> Peca<SRSBasico> {
     let mut blocos = BLOCOS_BASE;
     blocos[0][0] = 1;
     blocos[1][0] = 1;
@@ -95,7 +95,7 @@ pub fn o() -> Peca<SRSBasico> {
         srs: SRSBasico,
     }
 }
-pub fn i() -> Peca<SRSBasico> {
+pub const fn i() -> Peca<SRSBasico> {
     let mut blocos = BLOCOS_BASE;
     blocos[1][0] = 1;
     blocos[1][1] = 1;
