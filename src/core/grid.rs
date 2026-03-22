@@ -6,6 +6,8 @@ pub trait GridBlocos {
     fn cair_linhas(&mut self);
     fn limpar_linhas(&mut self) -> i32;
 
+    fn bloco_em(&self, pos: IVec2) -> Bloco;
+
     fn limpar_e_cair(&mut self) -> i32 {
         let limpas = self.limpar_linhas();
         self.cair_linhas();
@@ -73,17 +75,18 @@ pub trait GridBlocos {
 
 const TAM_MAX_GRID: usize = 50;
 const LARGURA_GRID: usize = 10;
-const ALTURA_GRID: usize = 10;
+const ALTURA_GRID: usize = 20;
 
 type Posicoes = [[Bloco; LARGURA_GRID]; ALTURA_GRID];
 const POSICOES_BASE: Posicoes = [[0; LARGURA_GRID]; ALTURA_GRID];
 
+#[derive(Debug)]
 pub struct Grid {
-    posicoes: Posicoes,
+    pub posicoes: Posicoes,
 }
 
 impl Grid {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Grid {
             // largura,
             // altura,
@@ -106,6 +109,14 @@ impl GridBlocos for Grid {
         }
 
         limpas
+    }
+
+    fn bloco_em(&self, pos: IVec2) -> Bloco {
+        if self.fora_dos_limites(pos) {
+            0
+        } else {
+            self.posicoes[pos.y as usize][pos.x as usize]
+        }
     }
 
     fn cair_linhas(&mut self) {
