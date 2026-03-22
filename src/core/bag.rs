@@ -21,8 +21,8 @@ pub trait BagPecas<S: SRS + Copy, P: PecaBlocos<S> + Clone> {
 }
 
 pub struct Bag<P> {
-    pecas_possiveis: Vec<P>,
-    pecas: VecDeque<P>,
+    pub pecas_possiveis: Vec<P>,
+    pub pecas: VecDeque<P>,
 }
 
 impl<S: SRS + Copy, P: PecaBlocos<S> + Clone> BagPecas<S, P> for Bag<P> {

@@ -5,6 +5,7 @@ pub trait GridBlocos {
     fn posicao_ocupada(&self, pos: IVec2) -> bool;
     fn cair_linhas(&mut self);
     fn limpar_linhas(&mut self) -> i32;
+    fn posicoes(&self) -> Vec<Vec<Bloco>>;
 
     fn bloco_em(&self, pos: IVec2) -> Bloco;
 
@@ -80,7 +81,7 @@ const ALTURA_GRID: usize = 20;
 type Posicoes = [[Bloco; LARGURA_GRID]; ALTURA_GRID];
 const POSICOES_BASE: Posicoes = [[0; LARGURA_GRID]; ALTURA_GRID];
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Grid {
     pub posicoes: Posicoes,
 }
@@ -96,6 +97,9 @@ impl Grid {
 }
 
 impl GridBlocos for Grid {
+    fn posicoes(&self) -> Vec<Vec<Bloco>> {
+        self.posicoes.iter().map(Vec::from).collect()
+    }
     fn limpar_linhas(&mut self) -> i32 {
         let mut limpas = 0;
 

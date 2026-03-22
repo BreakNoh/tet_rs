@@ -1,18 +1,21 @@
+#[cfg(test)]
+use std::collections::VecDeque;
+
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use super::*;
 
 #[derive(Debug)]
-struct GerenciadorJogo<G, B, P, S>
+pub struct GerenciadorJogo<G, B, P, S>
 where
     S: SRS + Copy,
     P: PecaBlocos<S> + Clone,
     G: GridBlocos,
     B: BagPecas<S, P>,
 {
-    grid: G,
-    bag: B,
-    peca_atual: P,
+    pub grid: G,
+    pub bag: B,
+    pub peca_atual: P,
     peca_guardada: Option<P>,
 
     pontos: i32,
@@ -129,7 +132,7 @@ where
 }
 
 #[cfg(test)]
-const GERENCIADOR_MOCK: GerenciadorJogo<Grid, BagTeste, Peca<SRSBasico>, SRSBasico> =
+pub const GERENCIADOR_MOCK: GerenciadorJogo<Grid, BagTeste, Peca<SRSBasico>, SRSBasico> =
     GerenciadorJogo {
         grid: Grid::new(),
         bag: BagTeste { fila: vec![] },
@@ -142,6 +145,28 @@ const GERENCIADOR_MOCK: GerenciadorJogo<Grid, BagTeste, Peca<SRSBasico>, SRSBasi
         parar: false,
         _srs: std::marker::PhantomData,
     };
+
+#[cfg(test)]
+pub const GERENCIADOR_MOCK_BAG: GerenciadorJogo<
+    Grid,
+    Bag<Peca<SRSBasico>>,
+    Peca<SRSBasico>,
+    SRSBasico,
+> = GerenciadorJogo {
+    grid: Grid::new(),
+    bag: Bag {
+        pecas: VecDeque::new(),
+        pecas_possiveis: vec![],
+    },
+    peca_atual: pecas::l(),
+    peca_guardada: None,
+    pontos: 0,
+    nivel: 0,
+    linhas_limpas: 0,
+    ja_trocou: false,
+    parar: false,
+    _srs: std::marker::PhantomData,
+};
 
 #[cfg(test)]
 mod tests {
