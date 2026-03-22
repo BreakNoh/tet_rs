@@ -3,6 +3,14 @@ use super::*;
 pub trait GridBlocos {
     fn dimensoes(&self) -> IVec2;
     fn posicao_ocupada(&self, pos: IVec2) -> bool;
+    fn cair_linhas(&mut self);
+    fn limpar_linhas(&mut self) -> i32;
+
+    fn limpar_e_cair(&mut self) -> i32 {
+        let limpas = self.limpar_linhas();
+        self.cair_linhas();
+        limpas
+    }
 
     fn fora_dos_limites(&self, pos: IVec2) -> bool {
         let dim = self.dimensoes();
@@ -60,12 +68,10 @@ const LARGURA_GRID: usize = 10;
 const ALTURA_GRID: usize = 10;
 
 type Posicoes = [[Bloco; LARGURA_GRID]; ALTURA_GRID];
-const POSICOES_BASE: Posicoes = [[0; LARGURA_GRID]; LARGURA_GRID];
+const POSICOES_BASE: Posicoes = [[0; LARGURA_GRID]; ALTURA_GRID];
 
 pub struct Grid {
     posicoes: Posicoes,
-    // largura: usize,
-    // altura: usize,
 }
 
 impl Grid {
@@ -79,15 +85,42 @@ impl Grid {
 }
 
 impl GridBlocos for Grid {
+    fn limpar_linhas(&mut self) -> i32 {
+        let mut limpas = 0;
+
+        for lin in self
+            .posicoes
+            .iter_mut()
+            .filter(|l| l.iter().all(|b| *b != 0))
+        {
+            limpas += 1;
+            lin.fill(0);
+        }
+
+        limpas
+    }
+
+    fn cair_linhas(&mut self) {
+        let mut resultado = POSICOES_BASE;
+
+        for (i, lin) in self
+            .posicoes
+            .iter_mut()
+            .filter(|l| l.iter().any(|b| *b != 0))
+            .rev()
+            .enumerate()
+        {
+            resultado[ALTURA_GRID - 1 - i] = *lin
+        }
+
+        self.posicoes = resultado
+    }
+
     fn dimensoes(&self) -> IVec2 {
         IVec2 {
             x: LARGURA_GRID as i32,
             y: ALTURA_GRID as i32,
         }
-        // IVec2 {
-        //     x: self.largura as i32,
-        //     y: self.altura as i32,
-        // }
     }
     fn posicao_ocupada(&self, pos: IVec2) -> bool {
         if self.fora_dos_limites(pos) {
@@ -95,7 +128,6 @@ impl GridBlocos for Grid {
         }
         self.posicoes[pos.y as usize][pos.x as usize] != 0
     }
-
     fn posicionar_bloco(&mut self, bloco: Bloco, pos: IVec2) {
         if self.fora_dos_limites(pos) {
             return;
@@ -192,5 +224,30 @@ mod tests {
         let pode_posicionar = grid.pode_posicionar(bloco, tam_bloco, IVec2::new(-1, 0));
 
         assert!(pode_posicionar)
+    }
+
+    #[test]
+    fn limpar_e_cair_linhas() {
+        let mut grid = Grid::new();
+
+        grid.posicoes[ALTURA_GRID - 4][0] = 1; // linha com dois bloco na esquerda
+        grid.posicoes[ALTURA_GRID - 4][1] = 1; // pra testar se não tem overlap
+
+        grid.posicoes[ALTURA_GRID - 2][0] = 1; // linha com um bloco na esquerda
+
+        grid.posicoes[ALTURA_GRID - 1] = [1; LARGURA_GRID]; // linha cheia na base
+        grid.posicoes[ALTURA_GRID - 3] = [1; LARGURA_GRID]; // linha cheia mais acima 
+
+        let limpas = grid.limpar_e_cair();
+        assert_eq!(limpas, 2);
+
+        assert_eq!(
+            grid.posicoes[ALTURA_GRID - 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        );
+        assert_eq!(
+            grid.posicoes[ALTURA_GRID - 2],
+            [1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+        )
     }
 }
