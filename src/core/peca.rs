@@ -24,19 +24,42 @@ pub trait PecaBlocos<S: SRS + Copy> {
         self.blocos_rotacao(self.rotacao())
     }
 
-    fn rotacionar_para(&mut self, rot: Rotacao, grid: &impl GridBlocos) {
+    fn onde_vai_cair(&self, grid: &impl GridBlocos) -> IVec2 {
+        let mut dy = 0;
+        let pos = self.posicao();
+        let blocos = self.blocos();
+        let tam = self.tamanho();
+
+        while grid.pode_posicionar(blocos, tam, pos + IVec2::new(0, dy)) {
+            dy += 1;
+        }
+
+        let ajuste = if dy > 0 { dy - 1 } else { 0 }; // dy só para dentro de algo ou passando do chao
+
+        IVec2::new(pos.x, pos.y + ajuste)
+    }
+
+    fn tentar_mover_para(&mut self, pos: IVec2, grid: &impl GridBlocos) {
+        if grid.pode_posicionar(self.blocos(), self.tamanho(), pos) {
+            self.set_posicao(pos);
+        }
+    }
+
+    fn rotacionar_para(&mut self, rot: Rotacao, grid: &impl GridBlocos) -> ResultadoSRS {
         let teste = self.srs();
         let blocos = self.blocos_rotacao(rot);
         let pos = self.posicao();
         let trans = (self.rotacao(), rot);
 
-        if let ResultadoSRS::Valida(offset) =
-            teste.validar_rotacao(blocos, self.tamanho(), pos, trans, grid)
-        {
+        let resultado_srs = teste.validar_rotacao(blocos, self.tamanho(), pos, trans, grid);
+
+        if let ResultadoSRS::Valida(offset) = resultado_srs {
             self.set_rotacao(rot);
             let nova_pos = self.posicao() + offset;
             self.set_posicao(nova_pos);
         }
+
+        resultado_srs
     }
 
     fn pode_rotacionar(&self, rot: Rotacao, grid: &impl GridBlocos) -> bool {
