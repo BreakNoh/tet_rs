@@ -182,7 +182,7 @@ fn renderizar_guardada_e_infos(
 }
 
 fn renderizar_pausado(area: Rect, buf: &mut Buffer) {
-    let linhas = Layout::default()
+    let mut linhas = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Fill(1),
@@ -190,6 +190,9 @@ fn renderizar_pausado(area: Rect, buf: &mut Buffer) {
             Constraint::Fill(2),
         ])
         .areas::<3>(area);
+
+    linhas[1].x += 2;
+    linhas[1].width -= 4;
 
     Clear.render(linhas[1], buf);
 
