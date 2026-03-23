@@ -1,12 +1,13 @@
 use ratatui::{
     layout::{Offset, Spacing},
-    widgets::Block,
+    widgets::{Block, Paragraph},
 };
 
 use crate::core::{
     bag::{Bag, BagPecas},
     gerenciador::Gerenciador,
     peca::{Blocos, PecaBlocos},
+    rotacao::Rotacao,
 };
 
 use super::*;
@@ -85,7 +86,7 @@ fn renderizar_proximas_pecas(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffe
 
     if let Some(proximas) = ger.bag.espiar::<4>() {
         renderizar_blocos(
-            proximas[0].blocos(),
+            proximas[0].blocos_rotacao(Rotacao::Norte),
             IVec2::ZERO,
             proximas[0].tamanho(),
             false,
@@ -95,7 +96,7 @@ fn renderizar_proximas_pecas(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffe
 
         for (i, p) in proximas.iter().skip(1).enumerate() {
             renderizar_blocos(
-                p.blocos(),
+                p.blocos_rotacao(Rotacao::Norte),
                 IVec2::ZERO,
                 p.tamanho(),
                 false,
@@ -106,8 +107,56 @@ fn renderizar_proximas_pecas(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffe
     }
 }
 
+fn renderizar_guardada_e_infos(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer) {
+    let linhas = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(6),
+            Constraint::Fill(1),
+            Constraint::Length(3),
+            Constraint::Length(3),
+            Constraint::Length(3),
+        ])
+        .spacing(Spacing::Space(1))
+        .areas::<5>(area);
+
+    let borda_guardada = Block::bordered().border_set(BORDA);
+    let area_guardada = borda_guardada.inner(linhas[0]);
+
+    borda_guardada.render(linhas[0], buf);
+
+    if let Some(guardada) = &ger.peca_guardada {
+        renderizar_blocos(
+            guardada.blocos_rotacao(Rotacao::Norte),
+            IVec2::ZERO,
+            guardada.tamanho(),
+            false,
+            area_guardada,
+            buf,
+        );
+    }
+
+    Paragraph::new(ger.nivel.to_string())
+        .block(Block::bordered().border_set(BORDA).title_top("nivel"))
+        .render(linhas[2], buf);
+    Paragraph::new(ger.pontos.to_string())
+        .block(Block::bordered().border_set(BORDA).title_top("pontos"))
+        .render(linhas[3], buf);
+    Paragraph::new(ger.linhas_limpas.to_string())
+        .block(Block::bordered().border_set(BORDA).title_top("linhas"))
+        .render(linhas[4], buf);
+}
+
 impl Widget for &Gerenciador<Bag> {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        let linhas = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Fill(1),
+                Constraint::Length(22),
+                Constraint::Fill(2),
+            ])
+            .areas::<3>(area);
         let colunas = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
@@ -118,12 +167,13 @@ impl Widget for &Gerenciador<Bag> {
                 Constraint::Fill(1),
             ])
             .spacing(Spacing::Space(1))
-            .areas::<5>(area);
+            .areas::<5>(linhas[1]);
 
         let area_grid = colunas[2].resize(Size::new(20 + 2, 20 + 2));
 
         self.grid.render(area_grid, buf);
         renderizar_peca_e_previa(self, area_grid.offset(Offset::new(1, 1)), buf);
         renderizar_proximas_pecas(self, colunas[3], buf);
+        renderizar_guardada_e_infos(self, colunas[1], buf);
     }
 }
