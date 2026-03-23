@@ -8,7 +8,7 @@ pub type Blocos = [[Bloco; TAM_MAX_BLOCOS]; TAM_MAX_BLOCOS];
 
 pub const BLOCOS_BASE: Blocos = [[0; TAM_MAX_BLOCOS]; TAM_MAX_BLOCOS];
 
-pub trait PecaBlocos<S: SRS + Copy> {
+pub trait PecaBlocos {
     fn tamanho(&self) -> usize;
     fn dimensoes(&self) -> IVec2;
 
@@ -19,7 +19,6 @@ pub trait PecaBlocos<S: SRS + Copy> {
     fn set_posicao(&mut self, pos: IVec2);
 
     fn blocos_rotacao(&self, rot: Rotacao) -> Blocos;
-    fn srs(&self) -> S;
 
     fn blocos(&self) -> Blocos {
         self.blocos_rotacao(self.rotacao())
@@ -46,13 +45,17 @@ pub trait PecaBlocos<S: SRS + Copy> {
         }
     }
 
-    fn rotacionar_para(&mut self, rot: Rotacao, grid: &impl GridBlocos) -> ResultadoSRS {
-        let teste = self.srs();
+    fn rotacionar_para<S: SRS>(
+        &mut self,
+        rot: Rotacao,
+        grid: &impl GridBlocos,
+        srs: &S,
+    ) -> ResultadoSRS {
         let blocos = self.blocos_rotacao(rot);
         let pos = self.posicao();
         let trans = (self.rotacao(), rot);
 
-        let resultado_srs = teste.validar_rotacao(blocos, self.tamanho(), pos, trans, grid);
+        let resultado_srs = srs.validar_rotacao(self, rot, grid);
 
         if let ResultadoSRS::Valida(offset) = resultado_srs {
             self.set_rotacao(rot);
@@ -63,14 +66,13 @@ pub trait PecaBlocos<S: SRS + Copy> {
         resultado_srs
     }
 
-    fn pode_rotacionar(&self, rot: Rotacao, grid: &impl GridBlocos) -> bool {
-        let teste = self.srs();
+    fn pode_rotacionar<S: SRS>(&self, rot: Rotacao, grid: &impl GridBlocos, srs: &S) -> bool {
         let blocos = self.blocos_rotacao(rot);
         let pos = self.posicao();
         let trans = (self.rotacao(), rot);
 
         matches!(
-            teste.validar_rotacao(blocos, self.tamanho(), pos, trans, grid),
+            srs.validar_rotacao(self, rot, grid),
             ResultadoSRS::Valida(_)
         )
     }
@@ -124,7 +126,7 @@ pub const fn gerar_rotacoes(blocos: Blocos, tam: usize) -> [Blocos; 4] {
     ]
 }
 
-impl PecaBlocos<SRSBasico> for Peca {
+impl PecaBlocos for Peca {
     fn tamanho(&self) -> usize {
         self.tamanho
     }
@@ -156,10 +158,6 @@ impl PecaBlocos<SRSBasico> for Peca {
             self.rotacoes[rot as usize]
         }
     }
-
-    fn srs(&self) -> SRSBasico {
-        self.srs
-    }
 }
 
 #[cfg(test)]
@@ -190,16 +188,17 @@ mod tests {
         let mut peca = pecas::t();
         peca.set_posicao(IVec2::new(3, 5)); // area que a peça tem espaço para rodar sem problemas
         let grid = Grid::new();
+        let srs = SRSBasico;
 
         assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Norte));
 
-        peca.rotacionar_para(Rotacao::Leste, &grid);
+        peca.rotacionar_para(Rotacao::Leste, &grid, &srs);
         assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Leste));
 
-        peca.rotacionar_para(Rotacao::Oeste, &grid);
+        peca.rotacionar_para(Rotacao::Oeste, &grid, &srs);
         assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Oeste));
 
-        peca.rotacionar_para(Rotacao::Sul, &grid);
+        peca.rotacionar_para(Rotacao::Sul, &grid, &srs);
         assert_eq!(peca.blocos(), peca.blocos_rotacao(Rotacao::Sul));
     }
 
@@ -210,6 +209,6 @@ mod tests {
         peca.set_rotacao(Rotacao::Oeste); // ponta virada para a esquerda
         let grid = Grid::new();
 
-        assert!(!peca.pode_rotacionar(Rotacao::Leste, &grid)) // ponta fora do grid
+        assert!(!peca.pode_rotacionar(Rotacao::Leste, &grid, &SRSBasico)) // ponta fora do grid
     }
 }

@@ -3,9 +3,10 @@ use crossterm::event::{self, KeyCode, KeyModifiers};
 use super::*;
 
 #[derive(Debug)]
-pub struct Gerenciador<B> {
+pub struct Gerenciador<B, S> {
     pub grid: Grid,
     pub bag: B,
+    pub srs: S,
     pub peca_atual: Peca,
     pub peca_guardada: Option<Peca>,
 
@@ -21,14 +22,15 @@ pub struct Gerenciador<B> {
 
 const ORIGEM_PECA: IVec2 = IVec2::new(3, 0);
 
-impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
-    pub fn new(mut bag: B) -> Self {
+impl<B: BagPecas<Peca>, S: SRS> Gerenciador<B, S> {
+    pub fn new(mut bag: B, srs: S) -> Self {
         let mut peca_atual = bag.proxima_peca();
         peca_atual.set_posicao(ORIGEM_PECA);
 
         Gerenciador {
             grid: Grid::new(),
             bag,
+            srs,
             peca_atual,
             peca_guardada: None,
             pontos: 0,
@@ -95,7 +97,9 @@ impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
     }
 
     pub fn tentar_rotacionar(&mut self, rot: Rotacao) {
-        if let ResultadoSRS::Valida(offset) = self.peca_atual.rotacionar_para(rot, &self.grid) {
+        if let ResultadoSRS::Valida(offset) =
+            self.peca_atual.rotacionar_para(rot, &self.grid, &self.srs)
+        {
             let pos_corrigida = self.peca_atual.posicao() + offset;
 
             self.peca_atual.set_posicao(pos_corrigida);
@@ -156,9 +160,10 @@ impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
 }
 
 #[cfg(test)]
-pub const GERENCIADOR_MOCK: Gerenciador<BagTeste> = Gerenciador {
+pub const GERENCIADOR_MOCK: Gerenciador<BagTeste, SRSBasico> = Gerenciador {
     grid: Grid::new(),
     bag: BagTeste { fila: vec![] },
+    srs: SRSBasico,
     peca_atual: pecas::l(),
     peca_guardada: None,
     pontos: 0,
@@ -170,13 +175,14 @@ pub const GERENCIADOR_MOCK: Gerenciador<BagTeste> = Gerenciador {
 };
 
 #[cfg(test)]
-pub const GERENCIADOR_MOCK_BAG: Gerenciador<Bag> = Gerenciador {
+pub const GERENCIADOR_MOCK_BAG: Gerenciador<Bag, SRSBasico> = Gerenciador {
     grid: Grid::new(),
     bag: Bag {
         pecas: vec![],
         pecas_possiveis: vec![],
     },
     peca_atual: pecas::l(),
+    srs: SRSBasico,
     peca_guardada: None,
     pontos: 0,
     nivel: 0,

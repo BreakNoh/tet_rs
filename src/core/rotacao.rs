@@ -42,18 +42,21 @@ pub enum ResultadoSRS {
 }
 
 pub trait SRS {
-    fn offsets(&self, trans: (Rotacao, Rotacao)) -> Option<[IVec2; 5]>;
+    fn offsets(&self, trans: (Rotacao, Rotacao)) -> Option<impl IntoIterator<Item = IVec2>>;
 
-    fn validar_rotacao(
+    fn validar_rotacao<P: PecaBlocos + ?Sized>(
         &self,
-        blocos: Blocos,
-        tam: usize,
-        pos: IVec2,
-        trans: (Rotacao, Rotacao),
+        peca: &P,
+        rot: Rotacao,
         grid: &impl GridBlocos,
     ) -> ResultadoSRS {
+        let trans = (peca.rotacao(), rot);
+        let blocos = peca.blocos();
+        let tam = peca.tamanho();
+        let pos = peca.posicao();
+
         if let Some(offsets) = self.offsets(trans) {
-            for offset in offsets.into_iter() {
+            for offset in offsets {
                 let pos_deslocadaa = pos + offset;
 
                 if grid.pode_posicionar(blocos, tam, pos_deslocadaa) {
@@ -70,7 +73,7 @@ pub trait SRS {
 pub struct SRSBasico;
 
 impl SRS for SRSBasico {
-    fn offsets(&self, _: (Rotacao, Rotacao)) -> Option<[IVec2; 5]> {
-        Some([IVec2::ZERO; 5])
+    fn offsets(&self, _: (Rotacao, Rotacao)) -> Option<impl IntoIterator<Item = IVec2>> {
+        Some([IVec2::ZERO])
     }
 }

@@ -8,7 +8,7 @@ use crate::{
         bag::{Bag, BagPecas},
         gerenciador::Gerenciador,
         peca::{Blocos, Peca, PecaBlocos, pecas::blocos},
-        rotacao::Rotacao,
+        rotacao::{Rotacao, SRSBasico},
     },
     widgets::paleta::{Paleta, PaletaPadrao},
 };
@@ -71,7 +71,7 @@ fn renderizar_blocos(
 }
 
 fn renderizar_peca_e_previa(
-    ger: &Gerenciador<Bag>,
+    ger: &Gerenciador<Bag, SRSBasico>,
     area: Rect,
     buf: &mut Buffer,
     state: &mut PaletaPadrao,
@@ -103,7 +103,7 @@ fn renderizar_peca_centralizada(
 }
 
 fn renderizar_proximas_pecas(
-    ger: &Gerenciador<Bag>,
+    ger: &Gerenciador<Bag, SRSBasico>,
     area: Rect,
     buf: &mut Buffer,
     state: &mut PaletaPadrao,
@@ -131,7 +131,7 @@ fn renderizar_proximas_pecas(
 }
 
 fn renderizar_guardada_e_infos(
-    ger: &Gerenciador<Bag>,
+    ger: &Gerenciador<Bag, SRSBasico>,
     area: Rect,
     buf: &mut Buffer,
     state: &mut PaletaPadrao,
@@ -210,7 +210,7 @@ fn renderizar_pausado(area: Rect, buf: &mut Buffer) {
     texto.render(linhas[1], buf);
 }
 
-impl StatefulWidget for &Gerenciador<Bag> {
+impl StatefulWidget for &Gerenciador<Bag, SRSBasico> {
     type State = PaletaPadrao;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let linhas = Layout::default()

@@ -2,8 +2,9 @@ use rand::seq::SliceRandom;
 
 use super::*;
 
-pub trait BagPecas<S: SRS + Copy, P: PecaBlocos<S> + Clone> {
+pub trait BagPecas<P: PecaBlocos + Clone> {
     fn tamanho(&self) -> usize;
+
     fn proxima_peca(&mut self) -> P;
     fn recarregar(&mut self);
     fn limpar(&mut self);
@@ -52,7 +53,7 @@ impl Default for Bag {
     }
 }
 
-impl BagPecas<SRSBasico, Peca> for Bag {
+impl BagPecas<Peca> for Bag {
     fn limpar(&mut self) {
         self.pecas.clear();
         self.recarregar();
@@ -94,7 +95,7 @@ pub struct BagTeste {
 }
 
 #[cfg(test)]
-impl BagPecas<SRSBasico, Peca> for BagTeste {
+impl BagPecas<Peca> for BagTeste {
     fn limpar(&mut self) {}
 
     fn tamanho(&self) -> usize {

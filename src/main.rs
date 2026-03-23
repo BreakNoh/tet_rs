@@ -6,12 +6,12 @@ use ratatui::DefaultTerminal;
 use std::time::{Duration, Instant};
 
 use crate::{
-    core::{bag::Bag, gerenciador::Gerenciador},
+    core::{bag::Bag, gerenciador::Gerenciador, rotacao::SRSBasico},
     widgets::paleta::PaletaPadrao,
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let ger = Gerenciador::new(Bag::default());
+    let ger = Gerenciador::new(Bag::default(), SRSBasico);
 
     ratatui::run(|t| iniciar(ger, t))
 }
@@ -31,7 +31,7 @@ fn calcular_gravidade(nivel: i32) -> Duration {
 }
 
 fn iniciar(
-    mut ger: Gerenciador<Bag>,
+    mut ger: Gerenciador<Bag, SRSBasico>,
     term: &mut DefaultTerminal,
 ) -> Result<(), Box<dyn std::error::Error>> {
     const DURACAO_FRAME: Duration = Duration::from_millis(16); // 60 fps

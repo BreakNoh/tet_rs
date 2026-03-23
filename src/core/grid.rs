@@ -16,11 +16,11 @@ pub trait GridBlocos {
         limpas
     }
 
-    fn posicionar_peca<S: SRS + Copy>(&mut self, peca: &impl PecaBlocos<S>) {
+    fn posicionar_peca(&mut self, peca: &impl PecaBlocos) {
         self.posicionar_blocos(peca.blocos(), peca.tamanho(), peca.posicao());
     }
 
-    fn posicionar_peca_em<S: SRS + Copy>(&mut self, peca: &impl PecaBlocos<S>, pos: IVec2) {
+    fn posicionar_peca_em(&mut self, peca: &impl PecaBlocos, pos: IVec2) {
         self.posicionar_blocos(peca.blocos(), peca.tamanho(), pos);
     }
 

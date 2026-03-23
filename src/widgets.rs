@@ -7,14 +7,15 @@ pub mod paleta;
 
 #[cfg(test)]
 mod tests {
-    use std::collections::VecDeque;
 
-    use crate::core::{
-        bag::Bag,
-        gerenciador::{GERENCIADOR_MOCK, GERENCIADOR_MOCK_BAG, Gerenciador},
-        grid::{Grid, GridBlocos},
-        peca::{PecaBlocos, pecas},
-        rotacao::Rotacao,
+    use crate::{
+        core::{
+            gerenciador::GERENCIADOR_MOCK_BAG,
+            grid::{Grid, GridBlocos},
+            peca::{PecaBlocos, pecas},
+            rotacao::Rotacao,
+        },
+        widgets::paleta::PaletaPadrao,
     };
 
     use super::*;
@@ -29,7 +30,9 @@ mod tests {
         grid.posicionar_peca_em(&pecas::t(), IVec2::new(3, 2));
         grid.posicionar_peca_em(&pecas::o(), IVec2::new(5, 5));
         grid.posicionar_peca_em(&pecas::z(), IVec2::new(2, 16));
-        terminal.draw(|f| f.render_widget(&grid, f.area())).unwrap();
+        terminal
+            .draw(|f| f.render_stateful_widget(&grid, f.area(), &mut PaletaPadrao::default()))
+            .unwrap();
 
         println!("--------- TESTE GRID ---------");
         println!("{:?}", terminal.backend().buffer());
@@ -51,7 +54,9 @@ mod tests {
         ger.peca_atual.set_posicao(IVec2::new(3, 2));
         ger.peca_atual.set_rotacao(Rotacao::Oeste);
 
-        terminal.draw(|f| f.render_widget(&ger, f.area())).unwrap();
+        terminal
+            .draw(|f| f.render_stateful_widget(&ger, f.area(), &mut PaletaPadrao::default()))
+            .unwrap();
 
         println!("--------- TESTE GERENCIADOR ---------");
         println!("{:?}", terminal.backend().buffer());
