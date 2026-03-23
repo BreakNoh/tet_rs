@@ -32,7 +32,7 @@ fn renderizar_blocos(
     buf: &mut Buffer,
 ) {
     for (dy, lin) in blocos.into_iter().take(tam).enumerate() {
-        for (dx, blo) in lin
+        for (dx, _blo) in lin
             .into_iter()
             .take(tam)
             .enumerate()
@@ -70,7 +70,7 @@ fn renderizar_peca_e_previa(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer
 
 fn renderizar_peca_centralizada(peca: &Peca, area: Rect, buf: &mut Buffer) {
     let dim = peca.dimensoes();
-    let (l, a) = (area.width as i32, area.height as i32);
+    let (l, _a) = (area.width as i32, area.height as i32);
     let (x, y) = (l / 2 - dim.x, (dim.y as f32 / 2.).ceil() as i32);
 
     let blocos = peca.blocos_rotacao(Rotacao::Norte);
@@ -81,26 +81,24 @@ fn renderizar_peca_centralizada(peca: &Peca, area: Rect, buf: &mut Buffer) {
 }
 
 fn renderizar_proximas_pecas(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer) {
+    let area = area.resize(Size::new(12, (2 + 1) * 5 + 3));
+
+    let borda_proximas = Block::bordered()
+        .border_set(BORDA)
+        .title_top(Line::from("próximas").centered());
+    let area_proximas = borda_proximas.inner(area);
+
+    borda_proximas.render(area, buf);
+
     let linhas = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Length(6),
-            Constraint::Length(4),
-            Constraint::Length(4),
-            Constraint::Length(4),
-        ])
+        .constraints([Constraint::Length(2); 5])
         .spacing(Spacing::Space(1))
-        .areas::<4>(area);
+        .areas::<5>(area_proximas);
 
-    let borda_proxima = Block::bordered().border_set(BORDA);
-    let area_proxima = borda_proxima.inner(linhas[0]);
-    borda_proxima.render(linhas[0], buf);
-
-    if let Some(proximas) = ger.bag.espiar::<4>() {
-        renderizar_peca_centralizada(proximas[0], area_proxima, buf);
-
-        for (i, p) in proximas.iter().skip(1).enumerate() {
-            renderizar_peca_centralizada(p, linhas[i + 1], buf);
+    if let Some(proximas) = ger.bag.espiar::<5>() {
+        for (i, p) in proximas.iter().enumerate() {
+            renderizar_peca_centralizada(p, linhas[i], buf);
         }
     }
 }
@@ -118,7 +116,9 @@ fn renderizar_guardada_e_infos(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buf
         .spacing(Spacing::Space(1))
         .areas::<5>(area);
 
-    let borda_guardada = Block::bordered().border_set(BORDA);
+    let borda_guardada = Block::bordered()
+        .border_set(BORDA)
+        .title_top(Line::from("guardada").centered());
     let area_guardada = borda_guardada.inner(linhas[0]);
 
     borda_guardada.render(linhas[0], buf);

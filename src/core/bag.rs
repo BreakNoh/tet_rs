@@ -63,7 +63,7 @@ impl BagPecas<SRSBasico, Peca> for Bag {
     }
 
     fn proxima_peca(&mut self) -> Peca {
-        if self.pecas.len() <= 4 {
+        if self.pecas.len() <= 5 {
             self.recarregar();
         }
         self.pecas.remove(0)
