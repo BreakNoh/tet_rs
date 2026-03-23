@@ -6,6 +6,7 @@ pub trait GridBlocos {
     fn cair_linhas(&mut self);
     fn limpar_linhas(&mut self) -> i32;
     fn posicoes(&self) -> Vec<Vec<Bloco>>;
+    fn limpar(&mut self);
 
     fn bloco_em(&self, pos: IVec2) -> Bloco;
 
@@ -97,6 +98,9 @@ impl Grid {
 }
 
 impl GridBlocos for Grid {
+    fn limpar(&mut self) {
+        self.posicoes.fill([0; LARGURA_GRID]);
+    }
     fn posicoes(&self) -> Vec<Vec<Bloco>> {
         self.posicoes.iter().map(Vec::from).collect()
     }

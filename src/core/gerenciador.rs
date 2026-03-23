@@ -108,6 +108,16 @@ impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
         self.ja_trocou = false;
     }
 
+    pub fn reiniciar(&mut self) {
+        self.grid.limpar();
+        self.bag.limpar();
+        self.peca_guardada = None;
+        self.trocar_pra_proxima_peca();
+        self.pontos = 0;
+        self.linhas_limpas = 0;
+        self.nivel = 0;
+    }
+
     pub fn processar_input(&mut self, ev: event::Event) {
         if let event::Event::Key(ev) = ev {
             let ctrl = ev.modifiers.contains(KeyModifiers::CONTROL);
@@ -118,6 +128,7 @@ impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
                 KeyCode::Char('c') if ctrl => self.parar = true,
                 KeyCode::Char('q') | KeyCode::Esc => self.parar = true,
                 KeyCode::Char('p') => self.pausado = !self.pausado,
+                KeyCode::Char('r') => self.reiniciar(),
                 _ => (),
             };
 

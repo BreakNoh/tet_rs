@@ -6,6 +6,7 @@ pub trait BagPecas<S: SRS + Copy, P: PecaBlocos<S> + Clone> {
     fn tamanho(&self) -> usize;
     fn proxima_peca(&mut self) -> P;
     fn recarregar(&mut self);
+    fn limpar(&mut self);
 
     fn espiar_enesima(&self, n: usize) -> &P;
 
@@ -52,6 +53,11 @@ impl Default for Bag {
 }
 
 impl BagPecas<SRSBasico, Peca> for Bag {
+    fn limpar(&mut self) {
+        self.pecas.clear();
+        self.recarregar();
+    }
+
     fn tamanho(&self) -> usize {
         self.pecas.len()
     }
