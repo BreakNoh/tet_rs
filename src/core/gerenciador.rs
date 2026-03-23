@@ -23,7 +23,9 @@ const ORIGEM_PECA: IVec2 = IVec2::new(3, 0);
 
 impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
     pub fn new(mut bag: B) -> Self {
-        let peca_atual = bag.proxima_peca();
+        let mut peca_atual = bag.proxima_peca();
+        peca_atual.set_posicao(ORIGEM_PECA);
+
         Gerenciador {
             grid: Grid::new(),
             bag,
