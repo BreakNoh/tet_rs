@@ -1,12 +1,26 @@
-use ratatui::layout::Offset;
+use ratatui::{
+    layout::{Offset, Spacing},
+    widgets::Block,
+};
 
 use crate::core::{
-    bag::Bag,
+    bag::{Bag, BagPecas},
     gerenciador::Gerenciador,
     peca::{Blocos, PecaBlocos},
 };
 
 use super::*;
+
+const BORDA: symbols::border::Set = symbols::border::Set {
+    top_left: "+",
+    top_right: "+",
+    bottom_left: "+",
+    bottom_right: "+",
+    vertical_left: "|",
+    vertical_right: "|",
+    horizontal_top: "-",
+    horizontal_bottom: "-",
+};
 
 fn renderizar_blocos(
     blocos: Blocos,
@@ -53,11 +67,63 @@ fn renderizar_peca_e_previa(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer
     renderizar_blocos(blocos, pos_peca, tam_peca, false, area, buf);
 }
 
+fn renderizar_proximas_pecas(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer) {
+    let linhas = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(6),
+            Constraint::Length(4),
+            Constraint::Length(4),
+            Constraint::Length(4),
+        ])
+        .spacing(Spacing::Space(1))
+        .areas::<4>(area);
+
+    let borda_proxima = Block::bordered().border_set(BORDA);
+    let area_proxima = borda_proxima.inner(linhas[0]);
+    borda_proxima.render(linhas[0], buf);
+
+    if let Some(proximas) = ger.bag.espiar::<4>() {
+        renderizar_blocos(
+            proximas[0].blocos(),
+            IVec2::ZERO,
+            proximas[0].tamanho(),
+            false,
+            area_proxima,
+            buf,
+        );
+
+        for (i, p) in proximas.iter().skip(1).enumerate() {
+            renderizar_blocos(
+                p.blocos(),
+                IVec2::ZERO,
+                p.tamanho(),
+                false,
+                linhas[i + 1],
+                buf,
+            );
+        }
+    }
+}
+
 impl Widget for &Gerenciador<Bag> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let area_grid = area.resize(Size::new(20 + 2, 20 + 2));
+        let colunas = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([
+                Constraint::Fill(1),
+                Constraint::Length(12),
+                Constraint::Length(22),
+                Constraint::Length(12),
+                Constraint::Fill(1),
+            ])
+            .spacing(Spacing::Space(1))
+            .areas::<5>(area);
+
+        let area_grid = colunas[2].resize(Size::new(20 + 2, 20 + 2));
 
         self.grid.render(area_grid, buf);
         renderizar_peca_e_previa(self, area_grid.offset(Offset::new(1, 1)), buf);
+        renderizar_proximas_pecas(self, colunas[3], buf);
     }
 }
