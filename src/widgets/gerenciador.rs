@@ -54,7 +54,11 @@ fn renderizar_blocos(
                 buf.set_string(
                     x_tela,
                     y_tela,
-                    if !previa { "[]" } else { "::" },
+                    if !previa {
+                        state.chars_bloco()
+                    } else {
+                        state.chars_previa()
+                    },
                     if !previa {
                         state.estilo_de(blo)
                     } else {

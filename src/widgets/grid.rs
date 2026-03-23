@@ -40,7 +40,7 @@ impl StatefulWidget for &Grid {
                 let y_tela = area.y + dy as u16;
 
                 if x_tela + 1 < area.right() && y_tela < area.bottom() {
-                    buf.set_string(x_tela, y_tela, "[]", state.estilo_de(bloco));
+                    buf.set_string(x_tela, y_tela, state.chars_bloco(), state.estilo_de(bloco));
                 }
             }
         }

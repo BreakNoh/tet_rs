@@ -10,16 +10,23 @@ pub trait Paleta {
     }
 
     fn estilo_de(&self, bloco: Bloco) -> Style;
+    fn chars_bloco(&self) -> &str;
+    fn chars_previa(&self) -> &str;
 }
 
 pub struct PaletaPadrao {
     estilos: HashMap<Bloco, Style>,
+    previa: String,
+    bloco: String,
 }
+
 use crate::core::peca::pecas::blocos::*;
 
 impl PaletaPadrao {
     fn sem_fundo() -> Self {
         PaletaPadrao {
+            bloco: "[]".into(),
+            previa: "::".into(),
             estilos: HashMap::from([
                 (T, Style::new().magenta().not_dim()),
                 (I, Style::new().cyan().not_dim()),
@@ -34,6 +41,8 @@ impl PaletaPadrao {
     }
     fn com_fundo() -> Self {
         PaletaPadrao {
+            bloco: "[]".into(),
+            previa: "::".into(),
             estilos: HashMap::from([
                 (T, Style::new().light_magenta().on_magenta().not_dim()),
                 (I, Style::new().light_cyan().on_cyan().not_dim()),
@@ -48,6 +57,8 @@ impl PaletaPadrao {
     }
     fn teste() -> Self {
         PaletaPadrao {
+            bloco: "[]".into(),
+            previa: "::".into(),
             estilos: HashMap::from([
                 (T, Style::new().black().on_magenta().not_dim()),
                 (I, Style::new().black().on_cyan().not_dim()),
@@ -69,6 +80,12 @@ impl Default for PaletaPadrao {
 }
 
 impl Paleta for PaletaPadrao {
+    fn chars_bloco(&self) -> &str {
+        &self.bloco
+    }
+    fn chars_previa(&self) -> &str {
+        &self.previa
+    }
     fn estilo_de(&self, bloco: Bloco) -> Style {
         self.estilos
             .get(&bloco)

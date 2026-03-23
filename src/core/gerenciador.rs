@@ -140,13 +140,14 @@ impl<B: BagPecas<SRSBasico, Peca>> Gerenciador<B> {
                     KeyCode::Char('x') => self.tentar_rotacionar(rot.rot90hor()),
                     KeyCode::Char('c') => self.guardar_peca(),
 
-                    KeyCode::Left if !self.pausado => self
+                    KeyCode::Left => self
                         .peca_atual
                         .tentar_mover_para(pos + IVec2::new(-1, 0), &self.grid),
-                    KeyCode::Right if !self.pausado => self
+                    KeyCode::Right => self
                         .peca_atual
                         .tentar_mover_para(pos + IVec2::new(1, 0), &self.grid),
-                    KeyCode::Up if !self.pausado => self.derrubar_direto(),
+                    KeyCode::Up => self.derrubar_direto(),
+                    KeyCode::Down => self.tick(),
                     _ => (),
                 };
             }
