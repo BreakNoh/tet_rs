@@ -16,43 +16,70 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ratatui::run(|t| iniciar(ger, t))
 }
 
+fn calcular_gravidade(nivel: i32) -> Duration {
+    let nivel_f = nivel as f64;
+    let base_ms = 800.0;
+    let decaimento = 0.90_f64;
+
+    let mut ms = base_ms * decaimento.powf(nivel_f);
+
+    if ms < 16.67 {
+        ms = 16.67;
+    }
+
+    Duration::from_millis(ms as u64)
+}
+
 fn iniciar(
     mut ger: Gerenciador<Bag>,
     term: &mut DefaultTerminal,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut contagem_frames = 0;
-    const FRAMES_POR_TICK: i32 = 60;
     const DURACAO_FRAME: Duration = Duration::from_millis(16); // 60 fps
 
-    crossterm::execute!(std::io::stdout(), EnterAlternateScreen)?;
+    let mut delta_tick = Duration::ZERO;
+    let mut duracao_tick = calcular_gravidade(ger.nivel);
+    let mut ult_nivel = ger.nivel;
+
+    let mut ultimo_frame = Instant::now();
 
     loop {
-        let inicio_frame = Instant::now();
+        let tempo_frame = ultimo_frame.elapsed();
+        ultimo_frame = Instant::now();
 
         if event::poll(Duration::from_millis(1))? {
             ger.processar_input(event::read()?);
         }
 
-        if !ger.pausado && contagem_frames >= FRAMES_POR_TICK {
-            ger.tick();
-            contagem_frames = 0;
-        } else if !ger.pausado {
-            contagem_frames += 1;
-        }
+        if !ger.pausado {
+            delta_tick += tempo_frame;
 
-        term.draw(|f| f.render_widget(&ger, f.area()))?;
+            while delta_tick >= duracao_tick {
+                ger.tick();
+
+                if ger.parar {
+                    break;
+                }
+                delta_tick -= duracao_tick;
+
+                if ger.nivel != ult_nivel {
+                    duracao_tick = calcular_gravidade(ger.nivel);
+                    ult_nivel = ger.nivel;
+                }
+            }
+        }
 
         if ger.parar {
             break;
         }
 
-        let tempo_restante = DURACAO_FRAME.saturating_sub(inicio_frame.elapsed());
+        term.draw(|f| f.render_widget(&ger, f.area()))?;
+
+        let tempo_processado = ultimo_frame.elapsed();
+        let tempo_restante = DURACAO_FRAME.saturating_sub(tempo_processado);
         if event::poll(tempo_restante)? {
             ger.processar_input(event::read()?);
         }
     }
-
-    crossterm::execute!(std::io::stdout(), EnterAlternateScreen)?;
 
     Ok(())
 }
