@@ -1,5 +1,8 @@
 use super::*;
-use crate::core::grid::{Grid, GridBlocos};
+use crate::{
+    core::grid::{Grid, GridBlocos},
+    widgets::paleta::{Paleta, PaletaPadrao},
+};
 use ratatui::widgets;
 
 const BORDA: symbols::border::Set = symbols::border::Set {
@@ -13,8 +16,10 @@ const BORDA: symbols::border::Set = symbols::border::Set {
     horizontal_bottom: "-",
 };
 
-impl Widget for &Grid {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+impl StatefulWidget for &Grid {
+    type State = PaletaPadrao;
+
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let IVec2 { x: lar, y: alt } = self.dimensoes();
         let bloco = widgets::Block::bordered().border_set(BORDA);
 
@@ -35,7 +40,7 @@ impl Widget for &Grid {
                 let y_tela = area.y + dy as u16;
 
                 if x_tela + 1 < area.right() && y_tela < area.bottom() {
-                    buf.set_string(x_tela, y_tela, "[]", Style::default());
+                    buf.set_string(x_tela, y_tela, "[]", state.estilo_de(bloco));
                 }
             }
         }

@@ -3,6 +3,7 @@ use ratatui::prelude::*;
 
 pub mod gerenciador;
 pub mod grid;
+pub mod paleta;
 
 #[cfg(test)]
 mod tests {

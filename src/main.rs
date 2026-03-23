@@ -1,13 +1,13 @@
 mod core;
 mod widgets;
 
-use crossterm::{self, event, terminal::EnterAlternateScreen};
+use crossterm::{self, event};
 use ratatui::DefaultTerminal;
 use std::time::{Duration, Instant};
 
-use crate::core::{
-    bag::Bag,
-    gerenciador::{self, Gerenciador},
+use crate::{
+    core::{bag::Bag, gerenciador::Gerenciador},
+    widgets::paleta::PaletaPadrao,
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -41,6 +41,7 @@ fn iniciar(
     let mut ult_nivel = ger.nivel;
 
     let mut ultimo_frame = Instant::now();
+    let mut paleta = PaletaPadrao::default();
 
     loop {
         let tempo_frame = ultimo_frame.elapsed();
@@ -72,7 +73,7 @@ fn iniciar(
             break;
         }
 
-        term.draw(|f| f.render_widget(&ger, f.area()))?;
+        term.draw(|f| f.render_stateful_widget(&ger, f.area(), &mut paleta))?;
 
         let tempo_processado = ultimo_frame.elapsed();
         let tempo_restante = DURACAO_FRAME.saturating_sub(tempo_processado);

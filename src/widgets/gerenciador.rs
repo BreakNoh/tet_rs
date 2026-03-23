@@ -3,11 +3,14 @@ use ratatui::{
     widgets::{Block, Clear, Padding, Paragraph},
 };
 
-use crate::core::{
-    bag::{Bag, BagPecas},
-    gerenciador::Gerenciador,
-    peca::{Blocos, Peca, PecaBlocos},
-    rotacao::Rotacao,
+use crate::{
+    core::{
+        bag::{Bag, BagPecas},
+        gerenciador::Gerenciador,
+        peca::{Blocos, Peca, PecaBlocos, pecas::blocos},
+        rotacao::Rotacao,
+    },
+    widgets::paleta::{Paleta, PaletaPadrao},
 };
 
 use super::*;
@@ -30,9 +33,10 @@ fn renderizar_blocos(
     previa: bool,
     area: Rect,
     buf: &mut Buffer,
+    state: &mut PaletaPadrao,
 ) {
     for (dy, lin) in blocos.into_iter().take(tam).enumerate() {
-        for (dx, _blo) in lin
+        for (dx, blo) in lin
             .into_iter()
             .take(tam)
             .enumerate()
@@ -51,24 +55,38 @@ fn renderizar_blocos(
                     x_tela,
                     y_tela,
                     if !previa { "[]" } else { "::" },
-                    Style::default(),
+                    if !previa {
+                        state.estilo_de(blo)
+                    } else {
+                        state.estilo_de(blocos::PREVIA)
+                    },
                 );
             }
         }
     }
 }
 
-fn renderizar_peca_e_previa(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer) {
+fn renderizar_peca_e_previa(
+    ger: &Gerenciador<Bag>,
+    area: Rect,
+    buf: &mut Buffer,
+    state: &mut PaletaPadrao,
+) {
     let tam_peca = ger.peca_atual.tamanho();
     let pos_previa = ger.peca_atual.onde_vai_cair(&ger.grid);
     let pos_peca = ger.peca_atual.posicao();
     let blocos = ger.peca_atual.blocos();
 
-    renderizar_blocos(blocos, pos_previa, tam_peca, true, area, buf);
-    renderizar_blocos(blocos, pos_peca, tam_peca, false, area, buf);
+    renderizar_blocos(blocos, pos_previa, tam_peca, true, area, buf, state);
+    renderizar_blocos(blocos, pos_peca, tam_peca, false, area, buf, state);
 }
 
-fn renderizar_peca_centralizada(peca: &Peca, area: Rect, buf: &mut Buffer) {
+fn renderizar_peca_centralizada(
+    peca: &Peca,
+    area: Rect,
+    buf: &mut Buffer,
+    state: &mut PaletaPadrao,
+) {
     let dim = peca.dimensoes();
     let (l, _a) = (area.width as i32, area.height as i32);
     let (x, y) = (l / 2 - dim.x, (dim.y as f32 / 2.).ceil() as i32);
@@ -77,10 +95,15 @@ fn renderizar_peca_centralizada(peca: &Peca, area: Rect, buf: &mut Buffer) {
     let tam = peca.tamanho();
     let area = area.offset(Offset { x, y });
 
-    renderizar_blocos(blocos, IVec2::ZERO, tam, false, area, buf);
+    renderizar_blocos(blocos, IVec2::ZERO, tam, false, area, buf, state);
 }
 
-fn renderizar_proximas_pecas(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer) {
+fn renderizar_proximas_pecas(
+    ger: &Gerenciador<Bag>,
+    area: Rect,
+    buf: &mut Buffer,
+    state: &mut PaletaPadrao,
+) {
     let area = area.resize(Size::new(12, (2 + 1) * 5 + 3));
 
     let borda_proximas = Block::bordered()
@@ -98,12 +121,17 @@ fn renderizar_proximas_pecas(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffe
 
     if let Some(proximas) = ger.bag.espiar::<5>() {
         for (i, p) in proximas.iter().enumerate() {
-            renderizar_peca_centralizada(p, linhas[i], buf);
+            renderizar_peca_centralizada(p, linhas[i], buf, state);
         }
     }
 }
 
-fn renderizar_guardada_e_infos(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buffer) {
+fn renderizar_guardada_e_infos(
+    ger: &Gerenciador<Bag>,
+    area: Rect,
+    buf: &mut Buffer,
+    state: &mut PaletaPadrao,
+) {
     let linhas = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -124,7 +152,7 @@ fn renderizar_guardada_e_infos(ger: &Gerenciador<Bag>, area: Rect, buf: &mut Buf
     borda_guardada.render(linhas[0], buf);
 
     if let Some(guardada) = &ger.peca_guardada {
-        renderizar_peca_centralizada(guardada, area_guardada, buf);
+        renderizar_peca_centralizada(guardada, area_guardada, buf, state);
     }
 
     Paragraph::new(ger.nivel.to_string())
@@ -175,8 +203,9 @@ fn renderizar_pausado(area: Rect, buf: &mut Buffer) {
     texto.render(linhas[1], buf);
 }
 
-impl Widget for &Gerenciador<Bag> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
+impl StatefulWidget for &Gerenciador<Bag> {
+    type State = PaletaPadrao;
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let linhas = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
@@ -185,6 +214,7 @@ impl Widget for &Gerenciador<Bag> {
                 Constraint::Fill(2),
             ])
             .areas::<3>(area);
+
         let colunas = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([
@@ -199,14 +229,14 @@ impl Widget for &Gerenciador<Bag> {
 
         let area_grid = colunas[2].resize(Size::new(20 + 2, 20 + 2));
 
-        self.grid.render(area_grid, buf);
-        renderizar_peca_e_previa(self, area_grid.offset(Offset::new(1, 1)), buf);
+        self.grid.render(area_grid, buf, state);
+        renderizar_peca_e_previa(self, area_grid.offset(Offset::new(1, 1)), buf, state);
 
         if self.pausado {
             renderizar_pausado(area_grid, buf);
         }
 
-        renderizar_proximas_pecas(self, colunas[3], buf);
-        renderizar_guardada_e_infos(self, colunas[1], buf);
+        renderizar_proximas_pecas(self, colunas[3], buf, state);
+        renderizar_guardada_e_infos(self, colunas[1], buf, state);
     }
 }
