@@ -77,6 +77,13 @@ impl BagPecas<SRSBasico, Peca> for Bag {
         let mut novo_lote = self.pecas_possiveis.clone();
         novo_lote.shuffle(&mut rand::rng());
 
+        if let Some(ult) = self.pecas.last()
+            && novo_lote[0] == *ult
+        {
+            let prim = novo_lote.remove(0);
+            novo_lote.push(prim);
+        }
+
         self.pecas.extend(novo_lote);
     }
 }
@@ -88,6 +95,8 @@ pub struct BagTeste {
 
 #[cfg(test)]
 impl BagPecas<SRSBasico, Peca> for BagTeste {
+    fn limpar(&mut self) {}
+
     fn tamanho(&self) -> usize {
         self.fila.len()
     }

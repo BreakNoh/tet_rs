@@ -38,7 +38,7 @@ impl PaletaPadrao {
                 (T, Style::new().light_magenta().on_magenta().not_dim()),
                 (I, Style::new().light_cyan().on_cyan().not_dim()),
                 (O, Style::new().light_yellow().on_yellow().not_dim()),
-                (L, Style::new().light_yellow().on_light_red().not_dim()),
+                (L, Style::new().red().on_light_red().not_dim()),
                 (J, Style::new().light_blue().on_blue().not_dim()),
                 (S, Style::new().light_green().on_green().not_dim()),
                 (Z, Style::new().light_red().on_red().not_dim()),
