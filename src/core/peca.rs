@@ -10,6 +10,7 @@ pub const BLOCOS_BASE: Blocos = [[0; TAM_MAX_BLOCOS]; TAM_MAX_BLOCOS];
 
 pub trait PecaBlocos<S: SRS + Copy> {
     fn tamanho(&self) -> usize;
+    fn dimensoes(&self) -> IVec2;
 
     fn rotacao(&self) -> Rotacao;
     fn set_rotacao(&mut self, rot: Rotacao);
@@ -84,6 +85,7 @@ pub struct Peca {
     posicao: IVec2,
     rotacao: Rotacao,
     tamanho: usize,
+    dimensoes: IVec2,      // na rotacao norte
     rotacoes: [Blocos; 4], // sentido horario
     srs: SRSBasico,
 }
@@ -125,6 +127,10 @@ pub const fn gerar_rotacoes(blocos: Blocos, tam: usize) -> [Blocos; 4] {
 impl PecaBlocos<SRSBasico> for Peca {
     fn tamanho(&self) -> usize {
         self.tamanho
+    }
+
+    fn dimensoes(&self) -> IVec2 {
+        self.dimensoes
     }
 
     fn rotacao(&self) -> Rotacao {

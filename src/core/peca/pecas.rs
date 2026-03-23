@@ -11,6 +11,7 @@ pub const fn t() -> Peca {
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
+        dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
         srs: SRSBasico,
     }
@@ -27,6 +28,7 @@ pub const fn l() -> Peca {
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
+        dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
         srs: SRSBasico,
     }
@@ -43,6 +45,7 @@ pub const fn j() -> Peca {
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
+        dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
         srs: SRSBasico,
     }
@@ -59,6 +62,7 @@ pub const fn s() -> Peca {
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
+        dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
         srs: SRSBasico,
     }
@@ -75,6 +79,7 @@ pub const fn z() -> Peca {
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
+        dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
         srs: SRSBasico,
     }
@@ -91,6 +96,7 @@ pub const fn o() -> Peca {
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 2,
+        dimensoes: IVec2::new(2, 2),
         rotacoes: gerar_rotacoes(blocos, 2),
         srs: SRSBasico,
     }
@@ -106,6 +112,7 @@ pub const fn i() -> Peca {
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 4,
+        dimensoes: IVec2::new(4, 1),
         rotacoes: gerar_rotacoes(blocos, 4),
         srs: SRSBasico,
     }
