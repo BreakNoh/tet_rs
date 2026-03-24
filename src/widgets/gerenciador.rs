@@ -8,7 +8,7 @@ use crate::{
         bag::{Bag, BagPecas},
         gerenciador::Gerenciador,
         peca::{Blocos, Peca, PecaBlocos, pecas::blocos},
-        rotacao::{Rotacao, SRSBasico},
+        rotacao::{Rotacao, SRS, SRSBasico},
     },
     widgets::paleta::{Paleta, PaletaPadrao},
 };
@@ -47,6 +47,10 @@ fn renderizar_blocos(
 
             let pos_bloco = pos + IVec2::new(dx, dy);
 
+            if pos_bloco.x < 0 || pos_bloco.y < 0 {
+                continue;
+            }
+
             let x_tela = area.x + pos_bloco.x as u16 * 2;
             let y_tela = area.y + pos_bloco.y as u16;
 
@@ -70,8 +74,8 @@ fn renderizar_blocos(
     }
 }
 
-fn renderizar_peca_e_previa(
-    ger: &Gerenciador<Bag, SRSBasico>,
+fn renderizar_peca_e_previa<B: BagPecas<Peca>, S: SRS>(
+    ger: &Gerenciador<B, S>,
     area: Rect,
     buf: &mut Buffer,
     state: &mut PaletaPadrao,
@@ -102,8 +106,8 @@ fn renderizar_peca_centralizada(
     renderizar_blocos(blocos, IVec2::ZERO, tam, false, area, buf, state);
 }
 
-fn renderizar_proximas_pecas(
-    ger: &Gerenciador<Bag, SRSBasico>,
+fn renderizar_proximas_pecas<B: BagPecas<Peca>, S: SRS>(
+    ger: &Gerenciador<B, S>,
     area: Rect,
     buf: &mut Buffer,
     state: &mut PaletaPadrao,
@@ -130,8 +134,8 @@ fn renderizar_proximas_pecas(
     }
 }
 
-fn renderizar_guardada_e_infos(
-    ger: &Gerenciador<Bag, SRSBasico>,
+fn renderizar_guardada_e_infos<B: BagPecas<Peca>, S: SRS>(
+    ger: &Gerenciador<B, S>,
     area: Rect,
     buf: &mut Buffer,
     state: &mut PaletaPadrao,
@@ -210,7 +214,7 @@ fn renderizar_pausado(area: Rect, buf: &mut Buffer) {
     texto.render(linhas[1], buf);
 }
 
-impl StatefulWidget for &Gerenciador<Bag, SRSBasico> {
+impl<B: BagPecas<Peca>, S: SRS> StatefulWidget for &Gerenciador<B, S> {
     type State = PaletaPadrao;
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let linhas = Layout::default()

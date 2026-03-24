@@ -21,12 +21,12 @@ pub const fn t() -> Peca {
     blocos[1][2] = T;
 
     Peca {
+        id: T,
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
         dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
-        srs: SRSBasico,
     }
 }
 
@@ -38,12 +38,12 @@ pub const fn l() -> Peca {
     blocos[1][2] = L;
 
     Peca {
+        id: L,
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
         dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
-        srs: SRSBasico,
     }
 }
 
@@ -55,12 +55,12 @@ pub const fn j() -> Peca {
     blocos[1][2] = J;
 
     Peca {
+        id: J,
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
         dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
-        srs: SRSBasico,
     }
 }
 
@@ -72,12 +72,12 @@ pub const fn s() -> Peca {
     blocos[1][1] = S;
 
     Peca {
+        id: S,
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
         dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
-        srs: SRSBasico,
     }
 }
 
@@ -89,12 +89,12 @@ pub const fn z() -> Peca {
     blocos[1][2] = Z;
 
     Peca {
+        id: Z,
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 3,
         dimensoes: IVec2::new(3, 2),
         rotacoes: gerar_rotacoes(blocos, 3),
-        srs: SRSBasico,
     }
 }
 
@@ -106,12 +106,12 @@ pub const fn o() -> Peca {
     blocos[1][1] = O;
 
     Peca {
+        id: O,
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 2,
         dimensoes: IVec2::new(2, 2),
         rotacoes: gerar_rotacoes(blocos, 2),
-        srs: SRSBasico,
     }
 }
 pub const fn i() -> Peca {
@@ -122,11 +122,11 @@ pub const fn i() -> Peca {
     blocos[1][3] = I;
 
     Peca {
+        id: I,
         posicao: IVec2::ZERO,
         rotacao: Rotacao::Norte,
         tamanho: 4,
         dimensoes: IVec2::new(4, 1),
         rotacoes: gerar_rotacoes(blocos, 4),
-        srs: SRSBasico,
     }
 }

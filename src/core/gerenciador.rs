@@ -1,5 +1,7 @@
 use crossterm::event::{self, KeyCode, KeyModifiers};
 
+use crate::core::peca::pecas::i;
+
 use super::*;
 
 #[derive(Debug)]
@@ -26,6 +28,7 @@ impl<B: BagPecas<Peca>, S: SRS> Gerenciador<B, S> {
     pub fn new(mut bag: B, srs: S) -> Self {
         let mut peca_atual = bag.proxima_peca();
         peca_atual.set_posicao(ORIGEM_PECA);
+        peca_atual = i();
 
         Gerenciador {
             grid: Grid::new(),
@@ -97,13 +100,7 @@ impl<B: BagPecas<Peca>, S: SRS> Gerenciador<B, S> {
     }
 
     pub fn tentar_rotacionar(&mut self, rot: Rotacao) {
-        if let ResultadoSRS::Valida(offset) =
-            self.peca_atual.rotacionar_para(rot, &self.grid, &self.srs)
-        {
-            let pos_corrigida = self.peca_atual.posicao() + offset;
-
-            self.peca_atual.set_posicao(pos_corrigida);
-        }
+        self.peca_atual.rotacionar_para(rot, &self.grid, &self.srs);
     }
 
     pub fn derrubar_direto(&mut self) {

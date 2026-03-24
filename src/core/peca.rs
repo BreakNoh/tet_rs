@@ -11,6 +11,7 @@ pub const BLOCOS_BASE: Blocos = [[0; TAM_MAX_BLOCOS]; TAM_MAX_BLOCOS];
 pub trait PecaBlocos {
     fn tamanho(&self) -> usize;
     fn dimensoes(&self) -> IVec2;
+    fn id(&self) -> u8;
 
     fn rotacao(&self) -> Rotacao;
     fn set_rotacao(&mut self, rot: Rotacao);
@@ -51,26 +52,19 @@ pub trait PecaBlocos {
         grid: &impl GridBlocos,
         srs: &S,
     ) -> ResultadoSRS {
-        let blocos = self.blocos_rotacao(rot);
-        let pos = self.posicao();
-        let trans = (self.rotacao(), rot);
-
         let resultado_srs = srs.validar_rotacao(self, rot, grid);
 
         if let ResultadoSRS::Valida(offset) = resultado_srs {
-            self.set_rotacao(rot);
+            panic!("{} {offset}", self.posicao());
             let nova_pos = self.posicao() + offset;
             self.set_posicao(nova_pos);
+            self.set_rotacao(rot);
         }
 
         resultado_srs
     }
 
     fn pode_rotacionar<S: SRS>(&self, rot: Rotacao, grid: &impl GridBlocos, srs: &S) -> bool {
-        let blocos = self.blocos_rotacao(rot);
-        let pos = self.posicao();
-        let trans = (self.rotacao(), rot);
-
         matches!(
             srs.validar_rotacao(self, rot, grid),
             ResultadoSRS::Valida(_)
@@ -87,9 +81,10 @@ pub struct Peca {
     posicao: IVec2,
     rotacao: Rotacao,
     tamanho: usize,
+    id: u8,
+
     dimensoes: IVec2,      // na rotacao norte
     rotacoes: [Blocos; 4], // sentido horario
-    srs: SRSBasico,
 }
 
 pub const fn rot90(blocos: Blocos, tam: usize, vezes: usize) -> Blocos {
@@ -127,6 +122,10 @@ pub const fn gerar_rotacoes(blocos: Blocos, tam: usize) -> [Blocos; 4] {
 }
 
 impl PecaBlocos for Peca {
+    fn id(&self) -> u8 {
+        self.id
+    }
+
     fn tamanho(&self) -> usize {
         self.tamanho
     }
